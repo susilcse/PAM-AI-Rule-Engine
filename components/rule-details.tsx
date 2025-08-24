@@ -1,37 +1,58 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { X, Edit, Trash2, Save, RotateCcw, Settings, AlertCircle } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import {
+  X,
+  Edit,
+  Trash2,
+  Save,
+  RotateCcw,
+  Settings,
+  AlertCircle,
+} from "lucide-react";
 
 interface RuleDetailsProps {
-  rule: any
-  contract: any
-  onClose: () => void
-  onEdit: () => void
-  onDelete: () => void
-  onSave: (updatedRule: any) => void
+  rule: any;
+  contract: any;
+  onClose: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onSave: (updatedRule: any) => void;
 }
 
-export function RuleDetails({ rule, contract, onClose, onEdit, onDelete, onSave }: RuleDetailsProps) {
-  const [isEditing, setIsEditing] = useState(false)
+export function RuleDetails({
+  rule,
+  contract,
+  onClose,
+  onEdit,
+  onDelete,
+  onSave,
+}: RuleDetailsProps) {
+  const [isEditing, setIsEditing] = useState(false);
   const [editedFields, setEditedFields] = useState(
     rule.fields.reduce((acc: any, field: any) => {
-      acc[field.id || field.name] = field.value
-      return acc
-    }, {}),
-  )
-  const [hasChanges, setHasChanges] = useState(false)
+      acc[field.id || field.name] = field.value;
+      return acc;
+    }, {})
+  );
+  const [hasChanges, setHasChanges] = useState(false);
 
   const handleFieldChange = (fieldId: string, value: string) => {
-    setEditedFields((prev) => ({ ...prev, [fieldId]: value }))
-    setHasChanges(true)
-  }
+    setEditedFields((prev: any) => ({ ...prev, [fieldId]: value }));
+    setHasChanges(true);
+  };
 
   const handleSave = () => {
     const updatedRule = {
@@ -41,81 +62,81 @@ export function RuleDetails({ rule, contract, onClose, onEdit, onDelete, onSave 
         value: editedFields[field.id || field.name] || field.value,
       })),
       updatedAt: new Date(),
-    }
-    onSave(updatedRule)
-    setIsEditing(false)
-    setHasChanges(false)
-  }
+    };
+    onSave(updatedRule);
+    setIsEditing(false);
+    setHasChanges(false);
+  };
 
   const handleReset = () => {
     setEditedFields(
       rule.fields.reduce((acc: any, field: any) => {
-        acc[field.id || field.name] = field.value
-        return acc
-      }, {}),
-    )
-    setHasChanges(false)
-  }
+        acc[field.id || field.name] = field.value;
+        return acc;
+      }, {})
+    );
+    setHasChanges(false);
+  };
 
   const validateField = (field: any, value: string) => {
     if (field.required && !value.trim()) {
-      return "This field is required"
+      return "This field is required";
     }
 
     if (field.type === "percentage") {
-      const num = Number.parseFloat(value)
-      if (isNaN(num)) return "Must be a valid number"
+      const num = Number.parseFloat(value);
+      if (isNaN(num)) return "Must be a valid number";
       if (field.validation?.min !== undefined && num < field.validation.min) {
-        return `Must be at least ${field.validation.min}%`
+        return `Must be at least ${field.validation.min}%`;
       }
       if (field.validation?.max !== undefined && num > field.validation.max) {
-        return `Must be at most ${field.validation.max}%`
+        return `Must be at most ${field.validation.max}%`;
       }
     }
 
     if (field.type === "number") {
-      const num = Number.parseFloat(value)
-      if (isNaN(num)) return "Must be a valid number"
+      const num = Number.parseFloat(value);
+      if (isNaN(num)) return "Must be a valid number";
       if (field.validation?.min !== undefined && num < field.validation.min) {
-        return `Must be at least ${field.validation.min}`
+        return `Must be at least ${field.validation.min}`;
       }
       if (field.validation?.max !== undefined && num > field.validation.max) {
-        return `Must be at most ${field.validation.max}`
+        return `Must be at most ${field.validation.max}`;
       }
     }
 
-    return null
-  }
+    return null;
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "critical":
-        return "destructive"
+        return "destructive";
       case "high":
-        return "default"
+        return "default";
       case "medium":
-        return "secondary"
+        return "secondary";
       case "low":
-        return "outline"
+        return "outline";
       default:
-        return "secondary"
+        return "secondary";
     }
-  }
+  };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "revenue":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
       case "quality":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
       case "performance":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200";
       case "compliance":
-        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
       default:
-        return "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200"
+        return "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200";
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -150,7 +171,12 @@ export function RuleDetails({ rule, contract, onClose, onEdit, onDelete, onSave 
                   <RotateCcw className="h-4 w-4" />
                   Reset
                 </Button>
-                <Button size="sm" onClick={handleSave} disabled={!hasChanges} className="gap-2">
+                <Button
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={!hasChanges}
+                  className="gap-2"
+                >
                   <Save className="h-4 w-4" />
                   Save Changes
                 </Button>
@@ -158,8 +184,8 @@ export function RuleDetails({ rule, contract, onClose, onEdit, onDelete, onSave 
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setIsEditing(false)
-                    handleReset()
+                    setIsEditing(false);
+                    handleReset();
                   }}
                 >
                   Cancel
@@ -167,11 +193,21 @@ export function RuleDetails({ rule, contract, onClose, onEdit, onDelete, onSave 
               </>
             ) : (
               <>
-                <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                  className="gap-2"
+                >
                   <Edit className="h-4 w-4" />
                   Edit Values
                 </Button>
-                <Button variant="outline" size="sm" onClick={onEdit} className="gap-2 bg-transparent">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onEdit}
+                  className="gap-2 bg-transparent"
+                >
                   <Settings className="h-4 w-4" />
                   Configure
                 </Button>
@@ -197,45 +233,72 @@ export function RuleDetails({ rule, contract, onClose, onEdit, onDelete, onSave 
             <h3 className="text-lg font-semibold mb-4">Rule Information</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Category</p>
-                <Badge className={`mt-1 ${getCategoryColor(rule.category)}`}>{rule.category}</Badge>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Category
+                </p>
+                <Badge className={`mt-1 ${getCategoryColor(rule.category)}`}>
+                  {rule.category}
+                </Badge>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Priority</p>
-                <Badge variant={getPriorityColor(rule.priority)} className="mt-1">
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Priority
+                </p>
+                <Badge
+                  variant={getPriorityColor(rule.priority)}
+                  className="mt-1"
+                >
                   {rule.priority}
                 </Badge>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Status</p>
-                <Badge variant={rule.active ? "default" : "secondary"} className="mt-1">
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Status
+                </p>
+                <Badge
+                  variant={rule.active ? "default" : "secondary"}
+                  className="mt-1"
+                >
                   {rule.active ? "Active" : "Inactive"}
                 </Badge>
               </div>
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Fields</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Fields
+                </p>
                 <p className="font-medium">
-                  {rule.fields.length} field{rule.fields.length !== 1 ? "s" : ""}
+                  {rule.fields.length} field
+                  {rule.fields.length !== 1 ? "s" : ""}
                 </p>
               </div>
             </div>
 
             {rule.description && (
               <div className="mt-4">
-                <p className="text-sm text-slate-600 dark:text-slate-400">Description</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Description
+                </p>
                 <p className="mt-1">{rule.description}</p>
               </div>
             )}
 
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Created</p>
-                <p className="font-medium">{new Date(rule.createdAt).toLocaleDateString()}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Created
+                </p>
+                <p className="font-medium">
+                  {new Date(rule.createdAt).toLocaleDateString()}
+                </p>
               </div>
               {rule.updatedAt && (
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Last Updated</p>
-                  <p className="font-medium">{new Date(rule.updatedAt).toLocaleDateString()}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Last Updated
+                  </p>
+                  <p className="font-medium">
+                    {new Date(rule.updatedAt).toLocaleDateString()}
+                  </p>
                 </div>
               )}
             </div>
@@ -257,20 +320,24 @@ export function RuleDetails({ rule, contract, onClose, onEdit, onDelete, onSave 
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {rule.fields.map((field: any, index: number) => {
-                const fieldId = field.id || field.name
-                const currentValue = editedFields[fieldId] || field.value
-                const validation = validateField(field, currentValue)
-                const hasError = validation !== null
+                const fieldId = field.id || field.name;
+                const currentValue = editedFields[fieldId] || field.value;
+                const validation = validateField(field, currentValue);
+                const hasError = validation !== null;
 
                 return (
                   <Card
                     key={index}
-                    className={`${!field.editable ? "bg-slate-50 dark:bg-slate-800" : ""} ${hasError ? "border-red-300" : ""}`}
+                    className={`${
+                      !field.editable ? "bg-slate-50 dark:bg-slate-800" : ""
+                    } ${hasError ? "border-red-300" : ""}`}
                   >
                     <CardContent className="pt-4">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium">{field.name}</Label>
+                          <Label className="text-sm font-medium">
+                            {field.name}
+                          </Label>
                           <div className="flex gap-1">
                             {field.required && (
                               <Badge variant="outline" className="text-xs">
@@ -293,26 +360,34 @@ export function RuleDetails({ rule, contract, onClose, onEdit, onDelete, onSave 
                           <Input
                             value={
                               currentValue +
-                              (field.type === "percentage" ? "%" : field.type === "currency" ? " USD" : "")
+                              (field.type === "percentage"
+                                ? "%"
+                                : field.type === "currency"
+                                ? " USD"
+                                : "")
                             }
                             onChange={(e) => {
-                              let value = e.target.value
+                              let value = e.target.value;
                               if (field.type === "percentage") {
-                                value = value.replace("%", "")
+                                value = value.replace("%", "");
                               }
                               if (field.type === "currency") {
-                                value = value.replace(" USD", "")
+                                value = value.replace(" USD", "");
                               }
-                              handleFieldChange(fieldId, value)
+                              handleFieldChange(fieldId, value);
                             }}
                             disabled={!isEditing || !field.editable}
-                            className={`${!field.editable ? "cursor-not-allowed" : ""} ${hasError ? "border-red-300" : ""}`}
+                            className={`${
+                              !field.editable ? "cursor-not-allowed" : ""
+                            } ${hasError ? "border-red-300" : ""}`}
                             type={
-                              field.type === "number" || field.type === "percentage" || field.type === "currency"
+                              field.type === "number" ||
+                              field.type === "percentage" ||
+                              field.type === "currency"
                                 ? "number"
                                 : field.type === "date"
-                                  ? "date"
-                                  : "text"
+                                ? "date"
+                                : "text"
                             }
                           />
                           {hasError && (
@@ -326,9 +401,11 @@ export function RuleDetails({ rule, contract, onClose, onEdit, onDelete, onSave 
                         <div className="text-xs text-slate-500 dark:text-slate-400">
                           <p>Type: {field.type}</p>
                           {field.validation &&
-                            (field.validation.min !== undefined || field.validation.max !== undefined) && (
+                            (field.validation.min !== undefined ||
+                              field.validation.max !== undefined) && (
                               <p>
-                                Range: {field.validation.min || 0} - {field.validation.max || "∞"}
+                                Range: {field.validation.min || 0} -{" "}
+                                {field.validation.max || "∞"}
                                 {field.type === "percentage" ? "%" : ""}
                               </p>
                             )}
@@ -336,12 +413,12 @@ export function RuleDetails({ rule, contract, onClose, onEdit, onDelete, onSave 
                       </div>
                     </CardContent>
                   </Card>
-                )
+                );
               })}
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
