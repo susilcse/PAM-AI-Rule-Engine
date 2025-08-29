@@ -9,7 +9,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Upload, FileText, Bot, ArrowLeft } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Upload,
+  FileText,
+  Bot,
+  ArrowLeft,
+  Home,
+  FolderOpen,
+} from "lucide-react";
 import { TokenRuleEditor } from "@/components/token-rule-editor";
 
 interface Contract {
@@ -90,41 +103,58 @@ export default function RuleEngineApp() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {currentPage !== "home" && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage("home")}
-                  className="gap-2"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Home
-                </Button>
-              )}
-              {currentPage === "ruleEditor" && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage("contracts")}
-                  className="gap-2"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Contracts
-                </Button>
-              )}
-              {currentPage === "home" && contracts.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage("contracts")}
-                  className="gap-2"
-                >
-                  <FileText className="h-4 w-4" />
-                  View Contracts ({contracts.length})
-                </Button>
-              )}
-            </div>
+            <TooltipProvider>
+              <div className="flex items-center gap-2">
+                {currentPage !== "home" && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setCurrentPage("home")}
+                      >
+                        <Home className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Go to Home</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+                {currentPage === "ruleEditor" && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setCurrentPage("contracts")}
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Back to Contracts</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+                {currentPage === "home" && contracts.length > 0 && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setCurrentPage("contracts")}
+                      >
+                        <FileText className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>View Contracts ({contracts.length})</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+            </TooltipProvider>
           </div>
         </div>
       </header>
@@ -166,14 +196,26 @@ export default function RuleEngineApp() {
                       accept=".pdf,.doc,.docx"
                       onChange={handleFileUpload}
                     />
-                    <Button
-                      onClick={() =>
-                        document.getElementById("contract-upload")?.click()
-                      }
-                      className="w-full"
-                    >
-                      Choose File
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            onClick={() =>
+                              document
+                                .getElementById("contract-upload")
+                                ?.click()
+                            }
+                            size="icon"
+                            className="mx-auto"
+                          >
+                            <Upload className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Choose File</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     Supported formats: PDF, DOC, DOCX
@@ -248,9 +290,21 @@ export default function RuleEngineApp() {
                 <p className="text-slate-600 dark:text-slate-400 mb-4">
                   Go back to home to upload your first contract
                 </p>
-                <Button onClick={() => setCurrentPage("home")}>
-                  Upload Contract
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={() => setCurrentPage("home")}
+                        size="icon"
+                      >
+                        <Upload className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Upload Contract</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             )}
           </div>

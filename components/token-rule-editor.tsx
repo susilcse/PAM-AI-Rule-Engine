@@ -24,6 +24,12 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Send, User, Sparkles } from "lucide-react";
 
 interface TokenRule {
@@ -243,15 +249,18 @@ export function TokenRuleEditor({
           {/* Header */}
           <div className="mb-6 pb-4 border-b">
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-2"
-                onClick={onBack}
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" onClick={onBack}>
+                      <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Back to Contracts</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <div>
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                   Edit Rules
@@ -294,15 +303,26 @@ export function TokenRuleEditor({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant={showChatPanel ? "default" : "outline"}
-                      size="sm"
-                      className="gap-2"
-                      onClick={() => setShowChatPanel(!showChatPanel)}
-                    >
-                      <Bot className="h-4 w-4" />
-                      {showChatPanel ? "Hide AI Assistant" : "Edit with AI"}
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={showChatPanel ? "default" : "outline"}
+                            size="icon"
+                            onClick={() => setShowChatPanel(!showChatPanel)}
+                          >
+                            <Bot className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            {showChatPanel
+                              ? "Hide AI Assistant"
+                              : "Edit with AI"}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
 
@@ -331,22 +351,40 @@ export function TokenRuleEditor({
                             </Badge>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => copyRule(rule.id)}
-                              className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
-                            >
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteRule(rule.id)}
-                              className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => copyRule(rule.id)}
+                                    className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Copy Rule</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => deleteRule(rule.id)}
+                                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Delete Rule</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
                         </div>
 
@@ -426,14 +464,23 @@ export function TokenRuleEditor({
                   <Bot className="h-5 w-5 text-blue-600" />
                   <h3 className="font-semibold">AI Assistant</h3>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowChatPanel(false)}
-                  className="h-8 w-8 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowChatPanel(false)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Close AI Assistant</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
 
               <div className="flex flex-col h-full">
@@ -512,9 +559,18 @@ export function TokenRuleEditor({
                       onKeyPress={handleKeyPress}
                       className="flex-1"
                     />
-                    <Button onClick={handleSendMessage} size="icon">
-                      <Send className="h-4 w-4" />
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button onClick={handleSendMessage} size="icon">
+                            <Send className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Send Message</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
               </div>
@@ -535,10 +591,18 @@ export function TokenRuleEditor({
           <p className="text-slate-600 dark:text-slate-400 mb-4">
             Create your first rule to get started
           </p>
-          <Button onClick={addRule} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Rule
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={addRule} size="icon">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Add Rule</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       )}
     </div>
