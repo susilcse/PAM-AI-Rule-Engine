@@ -15,8 +15,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Upload, FileText, Bot, ArrowLeft, Home } from "lucide-react";
+import {
+  Upload,
+  FileText,
+  Bot,
+  ArrowLeft,
+  Home,
+  FileBarChart,
+} from "lucide-react";
 import { TokenRuleEditor } from "@/components/token-rule-editor";
+import { ContractSummaryPanel } from "@/components/contract-summary-panel";
 
 interface Contract {
   id: string;
@@ -32,6 +40,10 @@ type PageView = "home" | "contracts" | "ruleEditor";
 export default function RuleEngineApp() {
   const [currentPage, setCurrentPage] = useState<PageView>("home");
   const [selectedContractId, setSelectedContractId] = useState<string | null>(
+    null
+  );
+  const [showSummaryPanel, setShowSummaryPanel] = useState(false);
+  const [summaryContractId, setSummaryContractId] = useState<string | null>(
     null
   );
 
@@ -65,7 +77,18 @@ export default function RuleEngineApp() {
     setCurrentPage("ruleEditor");
   };
 
+  const handleSummaryToggle = (contractId: string) => {
+    if (showSummaryPanel && summaryContractId === contractId) {
+      setShowSummaryPanel(false);
+      setSummaryContractId(null);
+    } else {
+      setShowSummaryPanel(true);
+      setSummaryContractId(contractId);
+    }
+  };
+
   const selectedContract = contracts.find((c) => c.id === selectedContractId);
+  const summaryContract = contracts.find((c) => c.id === summaryContractId);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
@@ -209,85 +232,162 @@ export default function RuleEngineApp() {
         )}
 
         {currentPage === "contracts" && (
-          <div className="max-w-4xl mx-auto">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-                Your Contracts
-              </h2>
-              <p className="text-slate-600 dark:text-slate-400">
-                Select a contract to create and edit rules
-              </p>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {contracts.map((contract) => (
-                <Card
-                  key={contract.id}
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => handleContractSelect(contract.id)}
-                >
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5" />
-                      {contract.contractNumber}
-                    </CardTitle>
-                    <CardDescription>{contract.partnerName}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-slate-600 dark:text-slate-400">
-                          Product:
-                        </span>
-                        <span className="font-medium">{contract.product}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-600 dark:text-slate-400">
-                          Uploaded:
-                        </span>
-                        <span className="font-medium">
-                          {contract.uploadedAt.toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-600 dark:text-slate-400">
-                          File:
-                        </span>
-                        <span className="font-medium text-xs truncate">
-                          {contract.fileName}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {contracts.length === 0 && (
-              <div className="text-center py-12">
-                <FileText className="h-16 w-16 mx-auto mb-4 text-slate-400" />
-                <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
-                  No contracts uploaded yet
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 mb-4">
-                  Go back to home to upload your first contract
+          <div
+            className={`w-full ${
+              showSummaryPanel
+                ? "grid grid-cols-[75%_25%] gap-6"
+                : "max-w-4xl mx-auto"
+            }`}
+          >
+            <div className="min-w-0">
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+                  Your Contracts
+                </h2>
+                <p className="text-slate-600 dark:text-slate-400">
+                  Select a contract to create rules or view AI-generated
+                  summaries
                 </p>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        onClick={() => setCurrentPage("home")}
-                        size="icon"
-                      >
-                        <Upload className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Upload Contract</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
               </div>
+
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {contracts.map((contract) => (
+                  <Card
+                    key={contract.id}
+                    className={`relative hover:shadow-lg transition-shadow ${
+                      summaryContractId === contract.id
+                        ? "ring-2 ring-blue-500"
+                        : ""
+                    }`}
+                  >
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        {contract.contractNumber}
+                      </CardTitle>
+                      <CardDescription>{contract.partnerName}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2 text-sm mb-4">
+                        <div className="flex justify-between">
+                          <span className="text-slate-600 dark:text-slate-400">
+                            Product:
+                          </span>
+                          <span className="font-medium">
+                            {contract.product}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600 dark:text-slate-400">
+                            Uploaded:
+                          </span>
+                          <span className="font-medium">
+                            {contract.uploadedAt.toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600 dark:text-slate-400">
+                            File:
+                          </span>
+                          <span className="font-medium text-xs truncate">
+                            {contract.fileName}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleContractSelect(contract.id);
+                                }}
+                              >
+                                <Bot className="h-4 w-4 mr-2" />
+                                Rules
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Create and edit rules</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant={
+                                  summaryContractId === contract.id
+                                    ? "default"
+                                    : "outline"
+                                }
+                                size="sm"
+                                className="flex-1"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSummaryToggle(contract.id);
+                                }}
+                              >
+                                <FileBarChart className="h-4 w-4 mr-2" />
+                                Summary
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>View AI-generated summary</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* No contracts message */}
+              {contracts.length === 0 && (
+                <div className="text-center py-12">
+                  <FileText className="h-16 w-16 mx-auto mb-4 text-slate-400" />
+                  <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
+                    No contracts uploaded yet
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400 mb-4">
+                    Go back to home to upload your first contract
+                  </p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          onClick={() => setCurrentPage("home")}
+                          size="icon"
+                        >
+                          <Upload className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Upload Contract</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              )}
+            </div>
+
+            {/* Summary Panel */}
+            {showSummaryPanel && summaryContract && (
+              <ContractSummaryPanel
+                contract={summaryContract}
+                onClose={() => {
+                  setShowSummaryPanel(false);
+                  setSummaryContractId(null);
+                }}
+              />
             )}
           </div>
         )}
