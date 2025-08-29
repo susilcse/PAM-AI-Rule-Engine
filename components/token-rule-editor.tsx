@@ -234,6 +234,26 @@ export function TokenRuleEditor({
 
   return (
     <div className="w-full mx-auto px-4">
+      {/* Header - Clean and simple */}
+      <div className="mb-6 pb-4 border-b">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" className="gap-2" onClick={onBack}>
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              Edit Rules
+            </h1>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              {contractInfo
+                ? `Modify rules for ${contractInfo.contractNumber} - ${contractInfo.partnerName}`
+                : "Modify contract rules using editable tokens"}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Split Layout: Rules on left (75%), Chat on right (25%) when open */}
       <div
         className={`flex gap-6 ${
@@ -244,44 +264,8 @@ export function TokenRuleEditor({
         <div
           className={`${
             showChatPanel ? "min-w-0" : "w-full"
-          } overflow-y-auto max-h-[calc(100vh-200px)]`}
+          } overflow-y-auto max-h-[calc(100vh-300px)]`}
         >
-          {/* Header inside Rules Panel */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-2"
-                onClick={onBack}
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-                  Edit Rules
-                </h1>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  {contractInfo
-                    ? `Modify rules for ${contractInfo.contractNumber} - ${contractInfo.partnerName}`
-                    : "Modify contract rules using editable tokens"}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center">
-              <Button
-                variant={showChatPanel ? "default" : "outline"}
-                size="sm"
-                className="gap-2"
-                onClick={() => setShowChatPanel(!showChatPanel)}
-              >
-                <Bot className="h-4 w-4" />
-                {showChatPanel ? "Hide AI Assistant" : "Edit with AI"}
-              </Button>
-            </div>
-          </div>
           <Card className="border border-slate-200">
             <div className="p-4">
               {/* Card Header */}
@@ -306,6 +290,18 @@ export function TokenRuleEditor({
                   <Badge variant="secondary" className="text-xs">
                     {rules.length} rule{rules.length !== 1 ? "s" : ""}
                   </Badge>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={showChatPanel ? "default" : "outline"}
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => setShowChatPanel(!showChatPanel)}
+                  >
+                    <Bot className="h-4 w-4" />
+                    {showChatPanel ? "Hide AI Assistant" : "Edit with AI"}
+                  </Button>
                 </div>
               </div>
 
