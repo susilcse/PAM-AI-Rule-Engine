@@ -15,14 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Upload,
-  FileText,
-  Bot,
-  ArrowLeft,
-  Home,
-  FolderOpen,
-} from "lucide-react";
+import { Upload, FileText, Bot, ArrowLeft, Home } from "lucide-react";
 import { TokenRuleEditor } from "@/components/token-rule-editor";
 
 interface Contract {
@@ -42,24 +35,7 @@ export default function RuleEngineApp() {
     null
   );
 
-  const [contracts, setContracts] = useState<Contract[]>([
-    {
-      id: "1",
-      contractNumber: "CTR-2024-001",
-      partnerName: "TechCorp Solutions",
-      product: "Software License",
-      uploadedAt: new Date("2024-01-15"),
-      fileName: "techcorp_contract.pdf",
-    },
-    {
-      id: "2",
-      contractNumber: "CTR-2024-002",
-      partnerName: "Global Media Inc",
-      product: "Content Distribution",
-      uploadedAt: new Date("2024-02-01"),
-      fileName: "global_media_agreement.pdf",
-    },
-  ]);
+  const [contracts, setContracts] = useState<Contract[]>([]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -67,8 +43,14 @@ export default function RuleEngineApp() {
       // Simulate contract upload
       const newContract: Contract = {
         id: Date.now().toString(),
-        contractNumber: `CTR-2024-${contracts.length + 1}`.padStart(11, "0"),
-        partnerName: file.name.split(".")[0].replace(/[_-]/g, " "),
+        contractNumber: `CTR-2024-${String(contracts.length + 1).padStart(
+          3,
+          "0"
+        )}`,
+        partnerName: file.name
+          .split(".")[0]
+          .replace(/[_-]/g, " ")
+          .replace(/\b\w/g, (l) => l.toUpperCase()),
         product: "Uploaded Contract",
         uploadedAt: new Date(),
         fileName: file.name,
