@@ -234,188 +234,190 @@ export function TokenRuleEditor({
 
   return (
     <div className="w-full mx-auto px-4">
-      {/* Header - Clean and simple */}
-      <div className="mb-6 pb-4 border-b">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" className="gap-2" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-              Edit Rules
-            </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              {contractInfo
-                ? `Modify rules for ${contractInfo.contractNumber} - ${contractInfo.partnerName}`
-                : "Modify contract rules using editable tokens"}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Split Layout: Rules on left (75%), Chat on right (25%) when open */}
+      {/* Full height layout: AI panel spans from header to bottom */}
       <div
-        className={`flex gap-6 ${
-          showChatPanel ? "grid grid-cols-[75%_25%]" : ""
-        }`}
+        className={`${showChatPanel ? "grid grid-cols-[75%_25%] gap-6" : ""}`}
       >
-        {/* Rules Panel - Scrollable */}
-        <div
-          className={`${
-            showChatPanel ? "min-w-0" : "w-full"
-          } overflow-y-auto max-h-[calc(100vh-300px)]`}
-        >
-          <Card className="border border-slate-200">
-            <div className="p-4">
-              {/* Card Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={toggleExpanded}
-                    className="p-0 h-auto"
-                  >
-                    {isExpanded ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                    Contract Rules
-                    <Edit2 className="h-4 w-4 text-slate-400" />
-                  </h3>
-                  <Badge variant="secondary" className="text-xs">
-                    {rules.length} rule{rules.length !== 1 ? "s" : ""}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={showChatPanel ? "default" : "outline"}
-                    size="sm"
-                    className="gap-2"
-                    onClick={() => setShowChatPanel(!showChatPanel)}
-                  >
-                    <Bot className="h-4 w-4" />
-                    {showChatPanel ? "Hide AI Assistant" : "Edit with AI"}
-                  </Button>
-                </div>
+        {/* Left side: Header + Rules (75% when AI open, 100% when closed) */}
+        <div className={`${showChatPanel ? "min-w-0" : "w-full"}`}>
+          {/* Header */}
+          <div className="mb-6 pb-4 border-b">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                onClick={onBack}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                  Edit Rules
+                </h1>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  {contractInfo
+                    ? `Modify rules for ${contractInfo.contractNumber} - ${contractInfo.partnerName}`
+                    : "Modify contract rules using editable tokens"}
+                </p>
               </div>
+            </div>
+          </div>
 
-              {/* Rules Content */}
-              {isExpanded && (
-                <div className="space-y-4">
-                  {rules.map((rule) => (
-                    <div
-                      key={rule.id}
-                      className="border border-slate-100 rounded-lg p-4 bg-slate-50/50"
+          {/* Rules Panel - Scrollable */}
+          <div className="overflow-y-auto max-h-[calc(100vh-300px)]">
+            <Card className="border border-slate-200">
+              <div className="p-4">
+                {/* Card Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={toggleExpanded}
+                      className="p-0 h-auto"
                     >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <h5 className="font-medium text-slate-900 dark:text-white flex items-center gap-2">
-                            {rule.name}
-                            <Edit2 className="h-3 w-3 text-slate-400" />
-                          </h5>
-                          <Badge
-                            className={`text-xs ${getCategoryColor(
-                              rule.category
-                            )}`}
-                          >
-                            {rule.category === "financial"
-                              ? "Financial"
-                              : "Traffic Quality"}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyRule(rule.id)}
-                            className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteRule(rule.id)}
-                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                      Contract Rules
+                      <Edit2 className="h-4 w-4 text-slate-400" />
+                    </h3>
+                    <Badge variant="secondary" className="text-xs">
+                      {rules.length} rule{rules.length !== 1 ? "s" : ""}
+                    </Badge>
+                  </div>
 
-                      {/* Tokens */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {rule.tokens.map((token, index) => (
-                          <div
-                            key={token.id}
-                            className="flex items-center gap-1"
-                          >
-                            {token.editable ? (
-                              token.type === "operator" ? (
-                                <Select
-                                  value={token.value}
-                                  onValueChange={(value) =>
-                                    updateToken(rule.id, token.id, value)
-                                  }
-                                >
-                                  <SelectTrigger
-                                    className={`h-8 w-auto min-w-[60px] border ${getTokenColor(
-                                      token.type
-                                    )} font-mono text-sm`}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant={showChatPanel ? "default" : "outline"}
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => setShowChatPanel(!showChatPanel)}
+                    >
+                      <Bot className="h-4 w-4" />
+                      {showChatPanel ? "Hide AI Assistant" : "Edit with AI"}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Rules Content */}
+                {isExpanded && (
+                  <div className="space-y-4">
+                    {rules.map((rule) => (
+                      <div
+                        key={rule.id}
+                        className="border border-slate-100 rounded-lg p-4 bg-slate-50/50"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <h5 className="font-medium text-slate-900 dark:text-white flex items-center gap-2">
+                              {rule.name}
+                              <Edit2 className="h-3 w-3 text-slate-400" />
+                            </h5>
+                            <Badge
+                              className={`text-xs ${getCategoryColor(
+                                rule.category
+                              )}`}
+                            >
+                              {rule.category === "financial"
+                                ? "Financial"
+                                : "Traffic Quality"}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => copyRule(rule.id)}
+                              className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
+                            >
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteRule(rule.id)}
+                              className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Tokens */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {rule.tokens.map((token, index) => (
+                            <div
+                              key={token.id}
+                              className="flex items-center gap-1"
+                            >
+                              {token.editable ? (
+                                token.type === "operator" ? (
+                                  <Select
+                                    value={token.value}
+                                    onValueChange={(value) =>
+                                      updateToken(rule.id, token.id, value)
+                                    }
                                   >
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {operatorOptions.map((op) => (
-                                      <SelectItem key={op} value={op}>
-                                        {op}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                    <SelectTrigger
+                                      className={`h-8 w-auto min-w-[60px] border ${getTokenColor(
+                                        token.type
+                                      )} font-mono text-sm`}
+                                    >
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {operatorOptions.map((op) => (
+                                        <SelectItem key={op} value={op}>
+                                          {op}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    value={token.value}
+                                    onChange={(e) =>
+                                      updateToken(
+                                        rule.id,
+                                        token.id,
+                                        e.target.value
+                                      )
+                                    }
+                                    className={`px-2 py-1 rounded border ${getTokenColor(
+                                      token.type
+                                    )} font-mono text-sm min-w-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                  />
+                                )
                               ) : (
-                                <input
-                                  type="text"
-                                  value={token.value}
-                                  onChange={(e) =>
-                                    updateToken(
-                                      rule.id,
-                                      token.id,
-                                      e.target.value
-                                    )
-                                  }
+                                <span
                                   className={`px-2 py-1 rounded border ${getTokenColor(
                                     token.type
-                                  )} font-mono text-sm min-w-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                                />
-                              )
-                            ) : (
-                              <span
-                                className={`px-2 py-1 rounded border ${getTokenColor(
-                                  token.type
-                                )} font-mono text-sm`}
-                              >
-                                {token.value}
-                              </span>
-                            )}
-                          </div>
-                        ))}
+                                  )} font-mono text-sm`}
+                                >
+                                  {token.value}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
         </div>
 
-        {/* AI Chat Panel - Fixed to screen height */}
+        {/* AI Chat Panel - Fixed to screen height, spans full height */}
         {showChatPanel && (
           <div className="min-w-0">
             <Card className="h-[calc(100vh-200px)] border border-slate-200 sticky top-0">
@@ -521,7 +523,8 @@ export function TokenRuleEditor({
         )}
       </div>
 
-      {rules.length === 0 && (
+      {/* No rules message - should be inside the main content area */}
+      {!showChatPanel && rules.length === 0 && (
         <div className="text-center py-12">
           <div className="text-slate-400 mb-4">
             <Edit2 className="h-12 w-12 mx-auto" />
