@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/card";
 import { Upload, FileText, Bot, ArrowLeft } from "lucide-react";
 import { TokenRuleEditor } from "@/components/token-rule-editor";
-import { StandaloneChat } from "@/components/standalone-chat";
 
 interface Contract {
   id: string;
@@ -22,7 +21,7 @@ interface Contract {
   fileName: string;
 }
 
-type PageView = "home" | "contracts" | "ruleEditor" | "chat";
+type PageView = "home" | "contracts" | "ruleEditor";
 
 export default function RuleEngineApp() {
   const [currentPage, setCurrentPage] = useState<PageView>("home");
@@ -125,15 +124,6 @@ export default function RuleEngineApp() {
                   View Contracts ({contracts.length})
                 </Button>
               )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setCurrentPage("chat")}
-                className="gap-2"
-              >
-                <Bot className="h-4 w-4" />
-                Chat
-              </Button>
             </div>
           </div>
         </div>
@@ -267,25 +257,12 @@ export default function RuleEngineApp() {
         )}
 
         {currentPage === "ruleEditor" && selectedContract && (
-          <div className="max-w-6xl mx-auto">
-            <div className="mb-6">
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-                Rule Editor
-              </h2>
-              <p className="text-slate-600 dark:text-slate-400">
-                {selectedContract.contractNumber} -{" "}
-                {selectedContract.partnerName}
-              </p>
-            </div>
-
+          <div className="w-full">
             {/* Import the existing TokenRuleEditor component */}
-            <TokenRuleEditor />
-          </div>
-        )}
-
-        {currentPage === "chat" && (
-          <div className="mx-auto max-w-4xl">
-            <StandaloneChat />
+            <TokenRuleEditor
+              onBack={() => setCurrentPage("contracts")}
+              contractInfo={selectedContract}
+            />
           </div>
         )}
       </div>
