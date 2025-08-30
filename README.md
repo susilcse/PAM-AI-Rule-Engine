@@ -1,6 +1,6 @@
 # 🤖 PAM AI Rule Engine
 
-> **Intelligent Contract Administration Assistant** - Transform natural language into powerful business rules
+> **Frontend Prototype** - Partner Agreement Management with AI-Powered Rule Creation Interface
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.2.4-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)](https://reactjs.org/)
@@ -9,18 +9,18 @@
 
 ## 🚀 Overview
 
-The **PAM AI Rule Engine** is a cutting-edge web application that revolutionizes contract management by combining the power of artificial intelligence with intuitive rule creation. Transform complex business requirements into structured, executable rules using nothing but natural language.
+The **PAM AI Rule Engine** is a frontend prototype for a Partner Agreement Management system that demonstrates an intelligent interface for contract administration and rule creation. This prototype showcases a modern, intuitive user experience for managing business contracts and creating complex rules through both AI-assisted natural language processing and visual token-based editing.
 
-### ✨ Key Features
+### ✨ Current Features (Frontend Only)
 
-- 🤖 **AI-Powered Rule Generation** - Describe rules in plain English
-- 📋 **Contract Management** - Comprehensive contract lifecycle management
-- 🎯 **Visual Rule Editor** - Token-based rule creation with drag-and-drop simplicity
-- 🔍 **Smart Search & Filtering** - Find contracts and rules instantly
-- 📊 **Real-time Validation** - Built-in business logic validation
-- 🌙 **Dark/Light Themes** - Beautiful, accessible interface
+- 📋 **Contract Upload & Management** - File upload interface with contract metadata tracking
+- 🤖 **AI Rule Builder Prototype** - Natural language rule parsing with structured output
+- 🎯 **Visual Token Rule Editor** - Interactive token-based rule creation and editing
+- 💬 **AI Chat Interface** - Conversational interface for rule modifications
+- 📊 **Contract Summary Panel** - AI-generated contract analysis display
+- 🌙 **Modern UI/UX** - Responsive design with dark/light theme support
 
-## 🎯 What Problem Does It Solve?
+## 🎯 Problem Statement
 
 Managing complex business contracts with dynamic rules can be overwhelming. Traditional approaches require:
 - Technical expertise to write business logic
@@ -28,25 +28,25 @@ Managing complex business contracts with dynamic rules can be overwhelming. Trad
 - Difficult maintenance and updates
 - Risk of human error in rule definition
 
-**PAM AI Rule Engine** eliminates these challenges by:
-- Enabling natural language rule creation
-- Providing instant rule validation
-- Offering visual rule editing tools
-- Maintaining rule consistency across contracts
+**This prototype demonstrates solutions by:**
+- Showcasing natural language rule creation interfaces
+- Providing visual rule editing tools
+- Displaying structured rule output and validation
+- Maintaining intuitive contract management workflows
 
-## 🏗️ Architecture
+## 🏗️ Frontend Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Natural       │    │   AI Rule       │    │   Token-Based   │
-│   Language      │───▶│   Builder       │───▶│   Rule Editor   │
-│   Input         │    │                 │    │                 │
+│   File Upload   │    │   Contract      │    │   AI Rule       │
+│   Interface     │───▶│   Management    │───▶│   Builder UI    │
+│                 │    │   Dashboard     │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
          ▼                       ▼                       ▼
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Contract      │    │   Rule          │    │   Validation    │
-│   Management    │    │   Management    │    │   Engine        │
+│   Local State   │    │   Token Rule    │    │   Summary       │
+│   Management    │    │   Editor        │    │   Panel         │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -115,53 +115,57 @@ pnpm install      # Install dependencies
 pnpm update       # Update dependencies
 ```
 
-## 📖 Usage Guide
+## 📖 Current Functionality
 
-### Creating Rules with AI
+### Contract Management Flow
 
-1. **Navigate to the Chat tab**
-2. **Describe your rule in natural language**
-   ```
-   "Create a revenue sharing rule with 25% rate and 85% traffic quality threshold"
-   ```
-3. **Review the AI-generated rule**
-4. **Select the target contract**
-5. **Customize fields if needed**
-6. **Create the rule**
+1. **Upload Contract Files**
+   - Use the file upload interface on the home page
+   - Supports PDF, DOC, and DOCX files
+   - Automatically generates contract metadata from filename
 
-### Managing Contracts
+2. **Contract Dashboard**
+   - View all uploaded contracts in a grid layout
+   - Each contract shows: number, partner name, product, upload date
+   - Two main actions per contract: "Rules" and "Summary"
 
-1. **Go to the Contracts tab**
-2. **Click "New Contract" to create**
-3. **Fill in contract details:**
-   - Contract Number
-   - Partner Name
-   - Product/Service
-   - Market/Region
-   - Start/End Dates
-   - Custom Fields
-4. **Save and associate rules**
+3. **Contract Summary Panel**
+   - Click "Summary" to view AI-generated contract analysis
+   - Shows contract overview, key points, and mock financial terms
+   - Displays processing status and last updated timestamp
 
-### Editing Rules
+### Rule Creation & Editing
 
-1. **Access the Rules tab**
-2. **Use the Token Rule Editor for complex logic**
-3. **Modify tokens (variables, operators, values)**
-4. **Preview rule execution**
-5. **Save changes**
+1. **AI Rule Builder (Demo)**
+   - Natural language parsing for rule creation
+   - Example: "Create a revenue sharing rule with 25% rate and 85% traffic quality"
+   - Generates structured rule output with categorization
+   - Supports multiple rule types: revenue, quality, performance, compliance
 
-## 🎨 Features in Detail
+2. **Token Rule Editor**
+   - Visual token-based rule editing interface
+   - Color-coded tokens: variables (blue), operators (green), values (purple), keywords (orange)
+   - Interactive editing with dropdowns for operators
+   - Copy, delete, and modify existing rules
 
-### 🤖 AI Rule Builder
+3. **AI Chat Interface**
+   - Conversational interface for rule modifications
+   - Currently shows mock responses for demonstration
+   - Integrated within the rule editor as a side panel
 
-The AI Rule Builder understands natural language and converts it into structured business rules:
+## 🎨 Component Details
+
+### 🤖 AI Rule Builder (`ai-rule-builder.tsx`)
+
+Mock natural language processing that demonstrates rule creation:
 
 ```typescript
-// Input: "Create a revenue sharing rule with 25% rate and 85% traffic quality"
-// Output: Structured rule with validation
+// Example Input: "Create a revenue sharing rule with 25% rate and 85% traffic quality"
+// Generated Output Structure:
 {
   name: "Revenue Share Rule",
-  category: "revenue",
+  category: "revenue", 
+  priority: "medium",
   fields: [
     { name: "Revenue Share Rate", type: "percentage", value: "25", validation: { min: 0, max: 50 } },
     { name: "Traffic Quality", type: "percentage", value: "85", validation: { min: 0, max: 100 } }
@@ -169,42 +173,54 @@ The AI Rule Builder understands natural language and converts it into structured
 }
 ```
 
-### 🎯 Token Rule Editor
+**Pattern Recognition:**
+- Revenue/commission keywords → "revenue" category
+- Quality/traffic keywords → "quality" category  
+- Performance/metric keywords → "performance" category
+- Compliance/legal keywords → "compliance" category
 
-Visual editor for complex business logic using tokens:
+### 🎯 Token Rule Editor (`token-rule-editor.tsx`)
 
-- **Variables**: `Revshare_rate`, `traffic_quality`, `bonus`
-- **Operators**: `=`, `>`, `<`, `>=`, `<=`, `!=`
-- **Values**: `60%`, `1000 USD`, `true`
-- **Keywords**: `if`, `then`, `else`
+Interactive visual editor with pre-loaded sample rules:
 
-### 📊 Contract Management
+**Default Rules:**
+- Revenue Share Rate: `Revshare_rate = 60%`
+- Cost of Sales: `cost_of_sales = 75%`  
+- Traffic Quality Bonus: `if traffic_quality > 70% then bonus = 1000 usd`
 
-Comprehensive contract lifecycle management:
+**Token Types:**
+- **Variables** (blue): `Revshare_rate`, `traffic_quality`, `bonus`
+- **Operators** (green): `=`, `>`, `<`, `>=`, `<=`, `!=`
+- **Values** (purple): `60%`, `1000 USD`, `true`
+- **Keywords** (orange): `if`, `then`, `else`
 
-- **Status Tracking**: Active, Draft, Pending, Expired
-- **Custom Fields**: Flexible metadata storage
-- **Rule Association**: Link rules to specific contracts
-- **Search & Filter**: Find contracts quickly
+### 📊 Contract Management (`page.tsx`)
 
-## 🔧 Configuration
+Frontend-only contract simulation:
+
+- **File Upload**: Accepts PDF/DOC/DOCX files
+- **Mock Data Generation**: Creates contract metadata from filenames
+- **State Management**: Local React state for contract storage
+- **Navigation**: Three-page flow (Home → Contracts → Rules)
+
+### 📋 Contract Summary Panel (`contract-summary-panel.tsx`)
+
+Displays mock AI-generated contract analysis:
+- Contract overview and metadata
+- Mock financial terms and timeline
+- Simulated processing status
+- Sample risk and opportunity assessments
+
+## 🔧 Current Configuration
 
 ### Environment Variables
 
-Create a `.env.local` file in the root directory:
+Currently no environment variables are required. The prototype runs entirely in the browser with:
 
-```env
-# Application
-NEXT_PUBLIC_APP_NAME=PAM AI Rule Engine
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# AI Configuration (future)
-NEXT_PUBLIC_AI_ENDPOINT=https://api.openai.com/v1
-NEXT_PUBLIC_AI_MODEL=gpt-4
-
-# Database (future)
-DATABASE_URL=postgresql://user:password@localhost:5432/pam_rule_engine
-```
+- **Local State Management**: All data stored in React state
+- **Mock AI Responses**: Simulated rule parsing and chat responses  
+- **Static Asset Serving**: Next.js handles all static files
+- **Client-Side Routing**: App Router for navigation between pages
 
 ### Customization
 
@@ -235,125 +251,100 @@ All UI components are built with Radix UI primitives and can be customized in `c
 
 ```
 pam-ai-rule-engine/
-├── app/                    # Next.js App Router
-│   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Main application
-├── components/            # React components
-│   ├── ui/               # Reusable UI components
-│   ├── ai-rule-builder.tsx
-│   ├── contract-form.tsx
-│   ├── rule-form.tsx
-│   └── token-rule-editor.tsx
-├── hooks/                # Custom React hooks
-├── lib/                  # Utility functions
-├── public/               # Static assets
-└── styles/               # Additional styles
+├── app/                          # Next.js App Router
+│   ├── globals.css              # Global styles and Tailwind imports
+│   ├── layout.tsx               # Root layout with theme provider
+│   ├── loading.tsx              # Loading component
+│   └── page.tsx                 # Main application (Contract management flow)
+├── components/                   # React components
+│   ├── ui/                     # Shadcn/ui component library (35+ components)
+│   ├── ai-rule-builder.tsx     # Natural language rule parsing UI
+│   ├── contract-details.tsx    # Contract information display
+│   ├── contract-form.tsx       # Contract creation/editing form
+│   ├── contract-summary-panel.tsx # AI contract analysis panel
+│   ├── rule-details.tsx        # Rule information display
+│   ├── rule-form.tsx          # Rule creation form
+│   ├── standalone-chat.tsx     # Standalone chat interface
+│   ├── theme-provider.tsx      # Dark/light theme management
+│   └── token-rule-editor.tsx   # Visual token-based rule editor
+├── hooks/                       # Custom React hooks
+│   ├── use-mobile.ts           # Mobile device detection
+│   └── use-toast.ts            # Toast notification hook
+├── lib/                        # Utility functions
+│   └── utils.ts               # Tailwind CSS class utilities
+├── documentation/              # Sample files and references
+│   ├── excel files/           # Revenue data examples
+│   └── sample contracts/      # Contract document examples
+├── public/                     # Static assets
+│   └── placeholder-*.{png,svg,jpg} # UI placeholder images
+└── styles/                     # Additional styles
+    └── globals.css            # Additional global styles
 ```
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Workflow
-
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Make your changes**
-4. **Run tests and linting**
-   ```bash
-   pnpm lint
-   pnpm test
-   ```
-5. **Commit your changes**
-   ```bash
-   git commit -m 'Add amazing feature'
-   ```
-6. **Push to the branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-7. **Open a Pull Request**
+## 🤝 Development
 
 ### Code Style
 
-- **TypeScript**: Strict mode enabled
-- **ESLint**: Airbnb configuration
-- **Prettier**: Consistent code formatting
-- **Conventional Commits**: Standardized commit messages
+- **TypeScript**: Strict mode enabled with full type coverage
+- **ESLint**: Next.js recommended configuration  
+- **Tailwind CSS**: Utility-first styling approach
+- **Component Architecture**: Modular, reusable component design
 
-## 🧪 Testing
+### Current Status
 
-```bash
-# Run all tests
-pnpm test
+This is a **frontend prototype** demonstrating:
+- ✅ Complete UI/UX flow for contract management
+- ✅ Visual rule creation and editing interfaces  
+- ✅ Mock AI interactions and responses
+- ✅ Responsive design with theme support
+- ❌ No backend integration
+- ❌ No real AI/LLM connectivity  
+- ❌ No persistent data storage
+- ❌ No authentication system
 
-# Run tests in watch mode
-pnpm test:watch
-
-# Run tests with coverage
-pnpm test:coverage
-
-# Run E2E tests
-pnpm test:e2e
-```
-
-## 📦 Deployment
+## 📦 Deployment (Frontend Only)
 
 ### Vercel (Recommended)
 
-1. **Connect your repository to Vercel**
-2. **Configure environment variables**
-3. **Deploy automatically on push**
-
-### Docker
-
 ```bash
-# Build the image
-docker build -t pam-ai-rule-engine .
-
-# Run the container
-docker run -p 3000:3000 pam-ai-rule-engine
+# Simple deployment for frontend prototype
+1. Push to GitHub repository
+2. Connect repository to Vercel
+3. Deploy automatically (no environment variables needed)
 ```
 
-### Manual Deployment
+### Local Development
 
 ```bash
 # Build for production
 pnpm build
 
-# Start production server
+# Start production server  
 pnpm start
+
+# Or run development server
+pnpm dev
 ```
 
-## 🔮 Roadmap
+## 📝 Mock Data & Examples
 
-### Phase 1: Core Features ✅
-- [x] AI-powered rule generation
-- [x] Contract management
-- [x] Token-based rule editor
-- [x] Basic validation
+The prototype includes sample data for demonstration:
 
-### Phase 2: Advanced Features 🚧
-- [ ] Database integration
-- [ ] User authentication
-- [ ] Rule templates
-- [ ] Advanced AI models
+### Contract Examples
+- Auto-generated contract numbers (CTR-2024-001, CTR-2024-002, etc.)
+- Partner names extracted from uploaded filenames
+- Mock contract statuses (Active, Draft, Pending, Expired)
 
-### Phase 3: Enterprise Features 📋
-- [ ] Multi-tenant support
-- [ ] API integration
-- [ ] Advanced analytics
-- [ ] Workflow automation
+### Rule Examples  
+- **Revenue Share**: `Revshare_rate = 60%`
+- **Cost of Sales**: `cost_of_sales = 75%` 
+- **Traffic Quality Bonus**: `if traffic_quality > 70% then bonus = 1000 usd`
 
-### Phase 4: AI Enhancement 🤖
-- [ ] Machine learning rule optimization
-- [ ] Predictive rule suggestions
-- [ ] Natural language rule testing
-- [ ] Automated rule validation
+### AI Response Patterns
+- Revenue/commission keywords → Revenue category rules
+- Quality/traffic keywords → Quality category rules
+- Performance/metric keywords → Performance category rules
+- Compliance/legal keywords → Compliance category rules
 
 ## 📄 License
 
@@ -366,21 +357,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Tailwind CSS** - For the utility-first CSS framework
 - **Lucide** - For beautiful, customizable icons
 
-## 📞 Support
-
-- **Documentation**: [docs.pam-rule-engine.com](https://docs.pam-rule-engine.com)
-- **Issues**: [GitHub Issues](https://github.com/your-username/pam-ai-rule-engine/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/pam-ai-rule-engine/discussions)
-- **Email**: support@pam-rule-engine.com
-
 ---
 
 <div align="center">
 
-**Made with ❤️ by the PAM AI Rule Engine Team**
+**Frontend Prototype - PAM AI Rule Engine**
 
-[![GitHub stars](https://img.shields.io/github/stars/your-username/pam-ai-rule-engine?style=social)](https://github.com/your-username/pam-ai-rule-engine)
-[![GitHub forks](https://img.shields.io/github/forks/your-username/pam-ai-rule-engine?style=social)](https://github.com/your-username/pam-ai-rule-engine)
-[![GitHub issues](https://img.shields.io/github/issues/your-username/pam-ai-rule-engine)](https://github.com/your-username/pam-ai-rule-engine/issues)
+*Demonstrating modern contract management and AI-powered rule creation interfaces*
 
 </div>
