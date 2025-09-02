@@ -120,7 +120,7 @@ Return JSON with this schema:
   "rules": [
     {
       "id": "rule_1",
-      "name": "Rule 1",
+      "name": "Yahoo Original Text Content Revenue Share",
       "source": "where this was found (e.g., 'Exhibit D', 'Section 5', etc.)",
       "tokens": [
         { "id": "1", "type": "keyword", "value": "if", "editable": false },
@@ -140,11 +140,18 @@ Return JSON with this schema:
   ]
 }
 
+RULE NAMING GUIDELINES:
+- Use descriptive names that explain what the rule does
+- Examples: "Yahoo Original Text Content Revenue Share", "OneFootball Video Content Revenue Split", "Traffic Quality Bonus Rule"
+- Avoid generic names like "Rule 1", "Rule 2"
+- Include content type, partner, and purpose in the name
+
 IMPORTANT: 
 - Each rule should be a simple IF-THEN statement
 - Break complex conditions into multiple rules
 - Generate unique sequential IDs for rules and tokens
-- Extract ALL revenue sharing logic, including thresholds and special conditions`;
+- Extract ALL revenue sharing logic, including thresholds and special conditions
+- Use descriptive, meaningful names for each rule`;
 
   const resp = await client.chat.completions.create({
     model: appConfig.openai.model,

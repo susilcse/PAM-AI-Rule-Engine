@@ -146,6 +146,15 @@ export default function RuleEngineApp() {
   };
 
   const handleSummaryToggle = (contractId: string) => {
+    // Don't allow opening summary if it's being processed or no summary data exists
+    if (isProcessing && processingContractId === contractId) {
+      return;
+    }
+
+    if (!contractSummaries[contractId]) {
+      return;
+    }
+
     if (showSummaryPanel && summaryContractId === contractId) {
       setShowSummaryPanel(false);
       setSummaryContractId(null);
@@ -413,17 +422,44 @@ export default function RuleEngineApp() {
                                   }
                                   size="sm"
                                   className="flex-1"
+                                  disabled={
+                                    (isProcessing &&
+                                      processingContractId === contract.id) ||
+                                    !contractSummaries[contract.id]
+                                  }
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleSummaryToggle(contract.id);
                                   }}
                                 >
-                                  <FileBarChart className="h-4 w-4 mr-2" />
-                                  Summary
+                                  {isProcessing &&
+                                  processingContractId === contract.id ? (
+                                    <>
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                                      Processing...
+                                    </>
+                                  ) : contractSummaries[contract.id] ? (
+                                    <>
+                                      <FileBarChart className="h-4 w-4 mr-2" />
+                                      Summary
+                                    </>
+                                  ) : (
+                                    <>
+                                      <FileBarChart className="h-4 w-4 mr-2" />
+                                      No Summary
+                                    </>
+                                  )}
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>View AI-generated summary</p>
+                                <p>
+                                  {isProcessing &&
+                                  processingContractId === contract.id
+                                    ? "AI is analyzing the contract..."
+                                    : contractSummaries[contract.id]
+                                    ? "View AI-generated summary"
+                                    : "Summary not available yet"}
+                                </p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>

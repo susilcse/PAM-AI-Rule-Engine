@@ -78,48 +78,15 @@ export function TokenRuleEditor({
   ]);
   const [chatInput, setChatInput] = useState("");
   const [isProcessingMessage, setIsProcessingMessage] = useState(false);
-  const [rules, setRules] = useState<TokenRule[]>([
-    {
-      id: "revenue-share",
-      name: "Revenue Share Rate",
-      category: "financial",
-      tokens: [
-        { id: "1", type: "variable", value: "Revshare_rate", editable: true },
-        { id: "2", type: "operator", value: "=", editable: true },
-        { id: "3", type: "value", value: "60%", editable: true },
-      ],
-    },
-    {
-      id: "cost-sales",
-      name: "Cost of Sales",
-      category: "financial",
-      tokens: [
-        { id: "4", type: "variable", value: "cost_of_sales", editable: true },
-        { id: "5", type: "operator", value: "=", editable: true },
-        { id: "6", type: "value", value: "75%", editable: true },
-      ],
-    },
-    {
-      id: "traffic-quality",
-      name: "Traffic Quality Bonus",
-      category: "traffic-quality",
-      tokens: [
-        { id: "7", type: "keyword", value: "if", editable: false },
-        { id: "8", type: "variable", value: "traffic_quality", editable: true },
-        { id: "9", type: "operator", value: ">", editable: true },
-        { id: "10", type: "value", value: "70%", editable: true },
-        { id: "11", type: "keyword", value: "then", editable: false },
-        { id: "12", type: "variable", value: "bonus", editable: true },
-        { id: "13", type: "operator", value: "=", editable: true },
-        { id: "14", type: "value", value: "1000 usd", editable: true },
-      ],
-    },
-  ]);
+  const [isLoadingRules, setIsLoadingRules] = useState(true);
+  const [rules, setRules] = useState<TokenRule[]>([]);
 
   // Load extracted rules from API and initialize AI chat service
   useEffect(() => {
     const loadExtractedRules = async () => {
       if (!contractInfo?.id) return;
+
+      setIsLoadingRules(true);
 
       try {
         const response = await fetch(`/api/contracts/${contractInfo.id}/rules`);
@@ -137,13 +104,183 @@ export function TokenRuleEditor({
 
           if (tokenRules.length > 0) {
             setRules(tokenRules);
+          } else {
+            // No rules found, use fallback dummy rules
+            setRules([
+              {
+                id: "revenue-share",
+                name: "Revenue Share Rate",
+                category: "financial",
+                tokens: [
+                  {
+                    id: "1",
+                    type: "variable",
+                    value: "Revshare_rate",
+                    editable: true,
+                  },
+                  { id: "2", type: "operator", value: "=", editable: true },
+                  { id: "3", type: "value", value: "60%", editable: true },
+                ],
+              },
+              {
+                id: "cost-sales",
+                name: "Cost of Sales",
+                category: "financial",
+                tokens: [
+                  {
+                    id: "4",
+                    type: "variable",
+                    value: "cost_of_sales",
+                    editable: true,
+                  },
+                  { id: "5", type: "operator", value: "=", editable: true },
+                  { id: "6", type: "value", value: "75%", editable: true },
+                ],
+              },
+              {
+                id: "traffic-quality",
+                name: "Traffic Quality Bonus",
+                category: "traffic-quality",
+                tokens: [
+                  { id: "7", type: "keyword", value: "if", editable: false },
+                  {
+                    id: "8",
+                    type: "variable",
+                    value: "traffic_quality",
+                    editable: true,
+                  },
+                  { id: "9", type: "operator", value: ">", editable: true },
+                  { id: "10", type: "value", value: "70%", editable: true },
+                  { id: "11", type: "keyword", value: "then", editable: false },
+                  {
+                    id: "12",
+                    type: "variable",
+                    value: "bonus",
+                    editable: true,
+                  },
+                  { id: "13", type: "operator", value: "=", editable: true },
+                  {
+                    id: "14",
+                    type: "value",
+                    value: "1000 usd",
+                    editable: true,
+                  },
+                ],
+              },
+            ]);
           }
-
-          // Rules loaded successfully
+        } else {
+          // API failed, use fallback dummy rules
+          setRules([
+            {
+              id: "revenue-share",
+              name: "Revenue Share Rate",
+              category: "financial",
+              tokens: [
+                {
+                  id: "1",
+                  type: "variable",
+                  value: "Revshare_rate",
+                  editable: true,
+                },
+                { id: "2", type: "operator", value: "=", editable: true },
+                { id: "3", type: "value", value: "60%", editable: true },
+              ],
+            },
+            {
+              id: "cost-sales",
+              name: "Cost of Sales",
+              category: "financial",
+              tokens: [
+                {
+                  id: "4",
+                  type: "variable",
+                  value: "cost_of_sales",
+                  editable: true,
+                },
+                { id: "5", type: "operator", value: "=", editable: true },
+                { id: "6", type: "value", value: "75%", editable: true },
+              ],
+            },
+            {
+              id: "traffic-quality",
+              name: "Traffic Quality Bonus",
+              category: "traffic-quality",
+              tokens: [
+                { id: "7", type: "keyword", value: "if", editable: false },
+                {
+                  id: "8",
+                  type: "variable",
+                  value: "traffic_quality",
+                  editable: true,
+                },
+                { id: "9", type: "operator", value: ">", editable: true },
+                { id: "10", type: "value", value: "70%", editable: true },
+                { id: "11", type: "keyword", value: "then", editable: false },
+                { id: "12", type: "variable", value: "bonus", editable: true },
+                { id: "13", type: "operator", value: "=", editable: true },
+                { id: "14", type: "value", value: "1000 usd", editable: true },
+              ],
+            },
+          ]);
         }
       } catch (error) {
         console.error("Failed to load extracted rules:", error);
-        // Keep dummy rules if loading fails
+        // Use fallback dummy rules if loading fails
+        setRules([
+          {
+            id: "revenue-share",
+            name: "Revenue Share Rate",
+            category: "financial",
+            tokens: [
+              {
+                id: "1",
+                type: "variable",
+                value: "Revshare_rate",
+                editable: true,
+              },
+              { id: "2", type: "operator", value: "=", editable: true },
+              { id: "3", type: "value", value: "60%", editable: true },
+            ],
+          },
+          {
+            id: "cost-sales",
+            name: "Cost of Sales",
+            category: "financial",
+            tokens: [
+              {
+                id: "4",
+                type: "variable",
+                value: "cost_of_sales",
+                editable: true,
+              },
+              { id: "5", type: "operator", value: "=", editable: true },
+              { id: "6", type: "value", value: "75%", editable: true },
+            ],
+          },
+          {
+            id: "traffic-quality",
+            name: "Traffic Quality Bonus",
+            category: "traffic-quality",
+            tokens: [
+              { id: "7", type: "keyword", value: "if", editable: false },
+              {
+                id: "8",
+                type: "variable",
+                value: "traffic_quality",
+                editable: true,
+              },
+              { id: "9", type: "operator", value: ">", editable: true },
+              { id: "10", type: "value", value: "70%", editable: true },
+              { id: "11", type: "keyword", value: "then", editable: false },
+              { id: "12", type: "variable", value: "bonus", editable: true },
+              { id: "13", type: "operator", value: "=", editable: true },
+              { id: "14", type: "value", value: "1000 usd", editable: true },
+            ],
+          },
+        ]);
+      } finally {
+        setIsLoadingRules(false);
       }
     };
 
@@ -446,125 +583,138 @@ export function TokenRuleEditor({
                 {/* Rules Content */}
                 {isExpanded && (
                   <div className="space-y-4">
-                    {rules.map((rule) => (
-                      <div
-                        key={rule.id}
-                        className="border border-slate-100 rounded-lg p-4 bg-slate-50/50"
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <h5 className="font-medium text-slate-900 dark:text-white flex items-center gap-2">
-                              {rule.name}
-                              <Edit2 className="h-3 w-3 text-slate-400" />
-                            </h5>
-                            <Badge
-                              className={`text-xs ${getCategoryColor(
-                                rule.category
-                              )}`}
-                            >
-                              {rule.category === "financial"
-                                ? "Financial"
-                                : "Traffic Quality"}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => copyRule(rule.id)}
-                                    className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
-                                  >
-                                    <Copy className="h-3 w-3" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Copy Rule</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => deleteRule(rule.id)}
-                                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Delete Rule</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                        </div>
-
-                        {/* Tokens */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {rule.tokens.map((token, index) => (
-                            <div
-                              key={token.id}
-                              className="flex items-center gap-1"
-                            >
-                              {token.editable ? (
-                                token.type === "operator" ? (
-                                  <Select
-                                    value={token.value}
-                                    onValueChange={(value) =>
-                                      updateToken(rule.id, token.id, value)
-                                    }
-                                  >
-                                    <SelectTrigger
-                                      className={`h-8 w-auto min-w-[60px] border ${getTokenColor(
-                                        token.type
-                                      )} font-mono text-sm`}
-                                    >
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {operatorOptions.map((op) => (
-                                        <SelectItem key={op} value={op}>
-                                          {op}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                ) : (
-                                  <input
-                                    type="text"
-                                    value={token.value}
-                                    onChange={(e) =>
-                                      updateToken(
-                                        rule.id,
-                                        token.id,
-                                        e.target.value
-                                      )
-                                    }
-                                    className={`px-2 py-1 rounded border ${getTokenColor(
-                                      token.type
-                                    )} font-mono text-sm min-w-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                                  />
-                                )
-                              ) : (
-                                <span
-                                  className={`px-2 py-1 rounded border ${getTokenColor(
-                                    token.type
-                                  )} font-mono text-sm`}
-                                >
-                                  {token.value}
-                                </span>
-                              )}
-                            </div>
-                          ))}
+                    {isLoadingRules ? (
+                      // Simple loading spinner
+                      <div className="flex items-center justify-center py-8">
+                        <div className="flex items-center gap-3">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                          <span className="text-slate-600">
+                            Loading rules...
+                          </span>
                         </div>
                       </div>
-                    ))}
+                    ) : (
+                      // Actual rules content
+                      rules.map((rule) => (
+                        <div
+                          key={rule.id}
+                          className="border border-slate-100 rounded-lg p-4 bg-slate-50/50"
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <h5 className="font-medium text-slate-900 dark:text-white flex items-center gap-2">
+                                {rule.name}
+                                <Edit2 className="h-3 w-3 text-slate-400" />
+                              </h5>
+                              <Badge
+                                className={`text-xs ${getCategoryColor(
+                                  rule.category
+                                )}`}
+                              >
+                                {rule.category === "financial"
+                                  ? "Financial"
+                                  : "Traffic Quality"}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => copyRule(rule.id)}
+                                      className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700"
+                                    >
+                                      <Copy className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Copy Rule</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => deleteRule(rule.id)}
+                                      className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Delete Rule</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                          </div>
+
+                          {/* Tokens */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {rule.tokens.map((token, index) => (
+                              <div
+                                key={token.id}
+                                className="flex items-center gap-1"
+                              >
+                                {token.editable ? (
+                                  token.type === "operator" ? (
+                                    <Select
+                                      value={token.value}
+                                      onValueChange={(value) =>
+                                        updateToken(rule.id, token.id, value)
+                                      }
+                                    >
+                                      <SelectTrigger
+                                        className={`h-8 w-auto min-w-[60px] border ${getTokenColor(
+                                          token.type
+                                        )} font-mono text-sm`}
+                                      >
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {operatorOptions.map((op) => (
+                                          <SelectItem key={op} value={op}>
+                                            {op}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  ) : (
+                                    <input
+                                      type="text"
+                                      value={token.value}
+                                      onChange={(e) =>
+                                        updateToken(
+                                          rule.id,
+                                          token.id,
+                                          e.target.value
+                                        )
+                                      }
+                                      className={`px-2 py-1 rounded border ${getTokenColor(
+                                        token.type
+                                      )} font-mono text-sm min-w-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                    />
+                                  )
+                                ) : (
+                                  <span
+                                    className={`px-2 py-1 rounded border ${getTokenColor(
+                                      token.type
+                                    )} font-mono text-sm`}
+                                  >
+                                    {token.value}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 )}
               </div>
