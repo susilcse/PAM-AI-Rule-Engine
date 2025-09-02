@@ -62,6 +62,8 @@ Create `.env.local` file:
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
+**Note**: The `contract-rules` and `temp-contracts` directories will be created automatically when you first upload a contract.
+
 ### Development
 
 ```bash
