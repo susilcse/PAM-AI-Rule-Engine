@@ -22,9 +22,11 @@ import {
   ArrowLeft,
   Home,
   FileBarChart,
+  Loader2,
 } from "lucide-react";
-import { TokenRuleEditor } from "@/components/token-rule-editor";
+
 import { ContractSummaryPanel } from "@/components/contract-summary-panel";
+import { TokenRuleEditor } from "@/components/token-rule-editor";
 
 interface Contract {
   id: string;
@@ -35,7 +37,7 @@ interface Contract {
   fileName: string;
 }
 
-type PageView = "home" | "contracts" | "ruleEditor";
+type PageView = "home" | "contracts" | "rules";
 
 export default function RuleEngineApp() {
   const [currentPage, setCurrentPage] = useState<PageView>("home");
@@ -48,33 +50,90 @@ export default function RuleEngineApp() {
   );
 
   const [contracts, setContracts] = useState<Contract[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingContractId, setProcessingContractId] = useState<
+    string | null
+  >(null);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
-    if (file) {
-      // Simulate contract upload
-      const newContract: Contract = {
-        id: Date.now().toString(),
-        contractNumber: `CTR-2024-${String(contracts.length + 1).padStart(
-          3,
-          "0"
-        )}`,
-        partnerName: file.name
-          .split(".")[0]
-          .replace(/[_-]/g, " ")
-          .replace(/\b\w/g, (l) => l.toUpperCase()),
-        product: "Uploaded Contract",
-        uploadedAt: new Date(),
-        fileName: file.name,
-      };
-      setContracts([...contracts, newContract]);
-      setCurrentPage("contracts");
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.toLowerCase().endsWith(".pdf")) {
+      alert("Please upload a PDF file only.");
+      return;
     }
+
+    // Create contract entry immediately
+    const contractId = Date.now().toString();
+    const newContract: Contract = {
+      id: contractId,
+      contractNumber: `CTR-2024-${String(contracts.length + 1).padStart(
+        3,
+        "0"
+      )}`,
+      partnerName: file.name
+        .split(".")[0]
+        .replace(/[_-]/g, " ")
+        .replace(/\b\w/g, (l) => l.toUpperCase()),
+      product: "Uploaded Contract",
+      uploadedAt: new Date(),
+      fileName: file.name,
+    };
+
+    // Add contract to list and show contracts page
+    setContracts([...contracts, newContract]);
+    setCurrentPage("contracts");
+
+    // Start processing in background
+    setIsProcessing(true);
+    setProcessingContractId(contractId);
+
+    try {
+      console.log("🚀 Starting PDF analysis for:", file.name);
+
+      // Prepare form data
+      const formData = new FormData();
+      formData.append("contract", file);
+      formData.append("contractId", contractId);
+
+      // Call our backend API
+      const response = await fetch("/api/contracts/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to analyze contract");
+      }
+
+      const result = await response.json();
+      console.log("✅ Contract analysis completed:", result);
+
+      alert(
+        `Contract analysis completed! Found ${
+          result.rules?.rules?.length || 0
+        } rules.`
+      );
+    } catch (error: any) {
+      console.error("❌ Contract analysis failed:", error);
+      alert(`Failed to analyze contract: ${error.message}`);
+    } finally {
+      setIsProcessing(false);
+      setProcessingContractId(null);
+    }
+
+    // Clear the file input
+    event.target.value = "";
   };
 
   const handleContractSelect = (contractId: string) => {
     setSelectedContractId(contractId);
-    setCurrentPage("ruleEditor");
+    setCurrentPage("rules");
   };
 
   const handleSummaryToggle = (contractId: string) => {
@@ -126,7 +185,7 @@ export default function RuleEngineApp() {
                     </TooltipContent>
                   </Tooltip>
                 )}
-                {currentPage === "ruleEditor" && (
+                {currentPage === "rules" && (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -311,9 +370,21 @@ export default function RuleEngineApp() {
                                     e.stopPropagation();
                                     handleContractSelect(contract.id);
                                   }}
+                                  disabled={
+                                    processingContractId === contract.id
+                                  }
                                 >
-                                  <Bot className="h-4 w-4 mr-2" />
-                                  Rules
+                                  {processingContractId === contract.id ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                      Processing...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Bot className="h-4 w-4 mr-2" />
+                                      Rules
+                                    </>
+                                  )}
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -396,14 +467,11 @@ export default function RuleEngineApp() {
           </div>
         )}
 
-        {currentPage === "ruleEditor" && selectedContract && (
-          <div className="w-full">
-            {/* Import the existing TokenRuleEditor component */}
-            <TokenRuleEditor
-              onBack={() => setCurrentPage("contracts")}
-              contractInfo={selectedContract}
-            />
-          </div>
+        {currentPage === "rules" && selectedContract && (
+          <TokenRuleEditor
+            onBack={() => setCurrentPage("contracts")}
+            contractInfo={selectedContract}
+          />
         )}
       </div>
     </div>

@@ -25,3 +25,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# contract analysis temporary files
+/temp-contracts/
+/contract-rules/
+/project-m/
