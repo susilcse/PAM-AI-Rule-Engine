@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +54,7 @@ interface Message {
 interface TokenRuleEditorProps {
   onBack?: () => void;
   contractInfo?: {
+    id: string;
     contractNumber: string;
     partnerName: string;
   };
@@ -112,6 +113,38 @@ export function TokenRuleEditor({
       ],
     },
   ]);
+
+  // Load extracted rules from API
+  useEffect(() => {
+    const loadExtractedRules = async () => {
+      if (!contractInfo?.id) return;
+
+      try {
+        const response = await fetch(`/api/contracts/${contractInfo.id}/rules`);
+        if (response.ok) {
+          const data = await response.json();
+          const extractedRules = data.rules?.current?.rules || [];
+
+          // Convert extracted rules to TokenRule format
+          const tokenRules: TokenRule[] = extractedRules.map((rule: any) => ({
+            id: rule.id,
+            name: rule.name,
+            category: "financial", // Default category
+            tokens: rule.tokens || [],
+          }));
+
+          if (tokenRules.length > 0) {
+            setRules(tokenRules);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load extracted rules:", error);
+        // Keep dummy rules if loading fails
+      }
+    };
+
+    loadExtractedRules();
+  }, [contractInfo?.id]);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);

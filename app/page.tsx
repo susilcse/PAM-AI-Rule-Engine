@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 
 import { ContractSummaryPanel } from "@/components/contract-summary-panel";
-import { RulesDisplayPage } from "@/components/rules-display-page";
+import { TokenRuleEditor } from "@/components/token-rule-editor";
 
 interface Contract {
   id: string;
@@ -468,9 +468,9 @@ export default function RuleEngineApp() {
         )}
 
         {currentPage === "rules" && selectedContract && (
-          <RulesDisplayPage
-            contract={selectedContract}
+          <TokenRuleEditor
             onBack={() => setCurrentPage("contracts")}
+            contractInfo={selectedContract}
           />
         )}
       </div>
