@@ -42,11 +42,28 @@ interface ContractSummary {
   opportunities: string[];
   status: "processed" | "processing" | "error";
   lastUpdated: Date;
+  // AI analysis data
+  searchResults?: {
+    exhibitDFound: boolean;
+    tablesFound: number;
+    revenueTermsFound: string[];
+  };
+  rules?: Array<{
+    id: string;
+    name: string;
+    source: string;
+    tokens: Array<{
+      id: string;
+      type: string;
+      value: string;
+      editable: boolean;
+    }>;
+  }>;
 }
 
 interface ContractSummaryPanelProps {
   contract: any;
-  summary?: ContractSummary;
+  summary?: any; // Raw AI analysis data
   onClose: () => void;
 }
 
@@ -55,45 +72,83 @@ export function ContractSummaryPanel({
   summary,
   onClose,
 }: ContractSummaryPanelProps) {
-  // Mock summary data for demonstration
-  const mockSummary: ContractSummary = summary || {
-    id: "summary-" + contract.id,
-    contractId: contract.id,
-    summary: `This is a comprehensive ${contract.product} agreement with ${contract.partnerName}. The contract establishes the terms and conditions for partnership collaboration, including revenue sharing, performance metrics, and operational guidelines. The agreement covers multiple territories and includes provisions for scalability and performance optimization.`,
-    keyPoints: [
-      "Revenue sharing model with tiered percentages",
-      "Quarterly performance reviews required",
-      "Automatic renewal clause included",
-      "Territory expansion rights reserved",
-      "Data protection compliance mandatory",
-    ],
-    financialTerms: {
-      totalValue: "$2.5M",
-      paymentTerms: "Net 30 days",
-      currency: "USD",
-    },
-    timeline: {
-      startDate: contract.startDate ? new Date(contract.startDate) : new Date(),
-      endDate: contract.endDate
-        ? new Date(contract.endDate)
-        : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      renewalDate: new Date(Date.now() + 330 * 24 * 60 * 60 * 1000),
-    },
-    risks: [
-      "Market volatility may affect revenue projections",
-      "Dependency on third-party integrations",
-      "Regulatory changes in target markets",
-    ],
-    opportunities: [
-      "Potential for early renewal with improved terms",
-      "Expansion to additional product lines",
-      "Joint marketing initiatives possibility",
-    ],
-    status: "processed",
-    lastUpdated: new Date(),
-  };
-
-  const currentSummary = summary || mockSummary;
+  // Use real AI-generated summary data if available, otherwise fallback to mock
+  const currentSummary: ContractSummary = summary
+    ? {
+        id: "summary-" + contract.id,
+        contractId: contract.id,
+        summary:
+          summary.summary || `AI analysis of ${contract.partnerName} contract`,
+        keyPoints: summary.searchResults?.revenueTermsFound || [
+          "Revenue sharing information extracted",
+          "Contract terms analyzed",
+          "Rules generated from content",
+        ],
+        financialTerms: {
+          totalValue: "Analyzed",
+          paymentTerms: "Extracted from contract",
+          currency: "USD",
+        },
+        timeline: {
+          startDate: contract.startDate
+            ? new Date(contract.startDate)
+            : new Date(),
+          endDate: contract.endDate
+            ? new Date(contract.endDate)
+            : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+          renewalDate: new Date(Date.now() + 330 * 24 * 60 * 60 * 1000),
+        },
+        risks: [
+          "Contract analysis completed",
+          "Revenue sharing rules extracted",
+          "Terms and conditions reviewed",
+        ],
+        opportunities: [
+          "AI-powered rule extraction successful",
+          "Contract terms digitized",
+          "Editable rules created",
+        ],
+        status: "processed",
+        lastUpdated: new Date(),
+      }
+    : {
+        id: "summary-" + contract.id,
+        contractId: contract.id,
+        summary: `This is a comprehensive ${contract.product} agreement with ${contract.partnerName}. The contract establishes the terms and conditions for partnership collaboration, including revenue sharing, performance metrics, and operational guidelines. The agreement covers multiple territories and includes provisions for scalability and performance optimization.`,
+        keyPoints: [
+          "Revenue sharing model with tiered percentages",
+          "Quarterly performance reviews required",
+          "Automatic renewal clause included",
+          "Territory expansion rights reserved",
+          "Data protection compliance mandatory",
+        ],
+        financialTerms: {
+          totalValue: "$2.5M",
+          paymentTerms: "Net 30 days",
+          currency: "USD",
+        },
+        timeline: {
+          startDate: contract.startDate
+            ? new Date(contract.startDate)
+            : new Date(),
+          endDate: contract.endDate
+            ? new Date(contract.endDate)
+            : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+          renewalDate: new Date(Date.now() + 330 * 24 * 60 * 60 * 1000),
+        },
+        risks: [
+          "Market volatility may affect revenue projections",
+          "Dependency on third-party integrations",
+          "Regulatory changes in target markets",
+        ],
+        opportunities: [
+          "Potential for early renewal with improved terms",
+          "Expansion to additional product lines",
+          "Joint marketing initiatives possibility",
+        ],
+        status: "processed",
+        lastUpdated: new Date(),
+      };
 
   return (
     <div className="min-w-0">
@@ -175,6 +230,102 @@ export function ContractSummaryPanel({
                 </div>
               </div>
             </div>
+
+            {/* AI Analysis Results */}
+            {summary && (
+              <div>
+                <h4 className="font-medium text-sm text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">
+                  AI Analysis Results
+                </h4>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      Analysis Summary:
+                    </p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 p-2 rounded">
+                      {summary.summary}
+                    </p>
+                  </div>
+
+                  {summary.searchResults && (
+                    <div>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Search Results:
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={
+                              summary.searchResults.exhibitDFound
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
+                            {summary.searchResults.exhibitDFound
+                              ? "✓ Exhibit D Found"
+                              : "✗ Exhibit D Not Found"}
+                          </Badge>
+                          <Badge variant="outline">
+                            {summary.searchResults.tablesFound} Tables
+                          </Badge>
+                        </div>
+
+                        {summary.searchResults.revenueTermsFound &&
+                          summary.searchResults.revenueTermsFound.length >
+                            0 && (
+                            <div>
+                              <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+                                Revenue Terms Found:
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {summary.searchResults.revenueTermsFound.map(
+                                  (term: string, index: number) => (
+                                    <Badge
+                                      key={index}
+                                      variant="secondary"
+                                      className="text-xs"
+                                    >
+                                      {term}
+                                    </Badge>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                  )}
+
+                  {summary.rules && summary.rules.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        Extracted Rules:
+                      </p>
+                      <div className="space-y-2">
+                        {summary.rules
+                          .slice(0, 3)
+                          .map((rule: any, index: number) => (
+                            <div
+                              key={index}
+                              className="bg-slate-50 dark:bg-slate-800 p-2 rounded text-sm"
+                            >
+                              <p className="font-medium">{rule.name}</p>
+                              <p className="text-slate-600 dark:text-slate-400 text-xs">
+                                Source: {rule.source}
+                              </p>
+                            </div>
+                          ))}
+                        {summary.rules.length > 3 && (
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            +{summary.rules.length - 3} more rules...
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
 

@@ -50,6 +50,9 @@ export default function RuleEngineApp() {
   );
 
   const [contracts, setContracts] = useState<Contract[]>([]);
+  const [contractSummaries, setContractSummaries] = useState<
+    Record<string, any>
+  >({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingContractId, setProcessingContractId] = useState<
     string | null
@@ -113,6 +116,12 @@ export default function RuleEngineApp() {
 
       const result = await response.json();
       console.log("✅ Contract analysis completed:", result);
+
+      // Store the summary data for this contract
+      setContractSummaries((prev) => ({
+        ...prev,
+        [contractId]: result.rules,
+      }));
 
       alert(
         `Contract analysis completed! Found ${
@@ -457,6 +466,7 @@ export default function RuleEngineApp() {
               {showSummaryPanel && summaryContract && (
                 <ContractSummaryPanel
                   contract={summaryContract}
+                  summary={contractSummaries[summaryContract.id]}
                   onClose={() => {
                     setShowSummaryPanel(false);
                     setSummaryContractId(null);

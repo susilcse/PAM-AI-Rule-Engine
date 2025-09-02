@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Send, User, Sparkles } from "lucide-react";
+import { RuleModification } from "@/lib/ai-chat-service";
 
 interface TokenRule {
   id: string;
@@ -71,11 +72,12 @@ export function TokenRuleEditor({
       id: "1",
       type: "assistant",
       content:
-        "Hello! I can help you modify and create rules using natural language. Try saying something like 'Change the revenue share to 30%' or 'Add a new performance rule'.",
+        "Hello! I can help you modify and create rules using natural language. Try saying something like:\n\n• 'Change the revenue share to 30%'\n• 'Add a new rule for video content'\n• 'Remove the traffic quality rule'\n• 'Make all percentages editable'\n\nI'll understand your request and apply the changes to your rules automatically!",
       timestamp: new Date(),
     },
   ]);
   const [chatInput, setChatInput] = useState("");
+  const [isProcessingMessage, setIsProcessingMessage] = useState(false);
   const [rules, setRules] = useState<TokenRule[]>([
     {
       id: "revenue-share",
@@ -114,7 +116,7 @@ export function TokenRuleEditor({
     },
   ]);
 
-  // Load extracted rules from API
+  // Load extracted rules from API and initialize AI chat service
   useEffect(() => {
     const loadExtractedRules = async () => {
       if (!contractInfo?.id) return;
@@ -136,6 +138,8 @@ export function TokenRuleEditor({
           if (tokenRules.length > 0) {
             setRules(tokenRules);
           }
+
+          // Rules loaded successfully
         }
       } catch (error) {
         console.error("Failed to load extracted rules:", error);
@@ -145,6 +149,8 @@ export function TokenRuleEditor({
 
     loadExtractedRules();
   }, [contractInfo?.id]);
+
+  // Rules are now managed in state
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -238,8 +244,40 @@ export function TokenRuleEditor({
 
   const operatorOptions = ["=", ">", "<", ">=", "<=", "!="];
 
-  const handleSendMessage = () => {
-    if (!chatInput.trim()) return;
+  const applyModifications = (modifications: RuleModification[]) => {
+    modifications.forEach((mod) => {
+      switch (mod.action) {
+        case "update":
+          if (mod.tokenUpdates) {
+            mod.tokenUpdates.forEach((update) => {
+              updateToken(update.ruleId, update.tokenId, update.newValue);
+            });
+          }
+          break;
+
+        case "create":
+          if (mod.newRule) {
+            setRules((prev) => [...prev, mod.newRule!]);
+          }
+          break;
+
+        case "delete":
+          if (mod.ruleId) {
+            deleteRule(mod.ruleId);
+          }
+          break;
+
+        case "copy":
+          if (mod.ruleId) {
+            copyRule(mod.ruleId);
+          }
+          break;
+      }
+    });
+  };
+
+  const handleSendMessage = async () => {
+    if (!chatInput.trim() || isProcessingMessage) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -249,19 +287,65 @@ export function TokenRuleEditor({
     };
 
     setChatMessages((prev) => [...prev, userMessage]);
+    setIsProcessingMessage(true);
 
-    // Simple AI response simulation for rule editing
-    setTimeout(() => {
+    try {
+      // Call the API endpoint
+      const contractContext = contractInfo
+        ? `Contract: ${contractInfo.contractNumber} - ${contractInfo.partnerName}`
+        : "Contract context";
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: chatInput,
+          rules: rules,
+          contractContext: contractContext,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || "Unknown API error");
+      }
+
+      const result = data.result;
+
+      // Add AI response
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: "assistant",
-        content: `I understand you want to: "${chatInput}". I can help you modify the rules. For now, please use the visual token editor on the left. This AI integration will be enhanced soon!`,
+        content: result.response,
         timestamp: new Date(),
       };
       setChatMessages((prev) => [...prev, aiResponse]);
-    }, 1000);
 
-    setChatInput("");
+      // Apply modifications to rules
+      if (result.modifications && result.modifications.length > 0) {
+        applyModifications(result.modifications);
+      }
+    } catch (error) {
+      console.error("Error processing AI message:", error);
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        type: "assistant",
+        content:
+          "I apologize, but I encountered an error processing your request. Please try again or use the visual editor.",
+        timestamp: new Date(),
+      };
+      setChatMessages((prev) => [...prev, errorResponse]);
+    } finally {
+      setIsProcessingMessage(false);
+      setChatInput("");
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -586,21 +670,38 @@ export function TokenRuleEditor({
                 <div className="p-4 border-t">
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Ask me to modify rules..."
+                      placeholder={
+                        isProcessingMessage
+                          ? "Processing..."
+                          : "Ask me to modify rules..."
+                      }
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
                       onKeyPress={handleKeyPress}
                       className="flex-1"
+                      disabled={isProcessingMessage}
                     />
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button onClick={handleSendMessage} size="icon">
-                            <Send className="h-4 w-4" />
+                          <Button
+                            onClick={handleSendMessage}
+                            size="icon"
+                            disabled={isProcessingMessage || !chatInput.trim()}
+                          >
+                            {isProcessingMessage ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            ) : (
+                              <Send className="h-4 w-4" />
+                            )}
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Send Message</p>
+                          <p>
+                            {isProcessingMessage
+                              ? "Processing..."
+                              : "Send Message"}
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
