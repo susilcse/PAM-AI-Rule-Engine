@@ -81,10 +81,19 @@ export async function extractRules(text: string): Promise<any> {
 You are a contract rules extractor that converts revenue sharing information into editable token-based rules.
 
 SEARCH STRATEGY:
-1. First look for "Exhibit D" or similar exhibits/appendices
-2. Look for any tables with revenue sharing data
-3. Search for content type classifications and percentage splits
-4. Look for terms like: "Content Type", "Revenue Share", "Cost of Content", "Yahoo", "OneFootball"
+1. FIRST PRIORITY: Look for "Exhibit D" or similar exhibits/appendices
+2. CRITICAL: Extract EVERY ROW from Exhibit D tables as separate rules
+3. Each table row should become one rule with its specific conditions and percentages
+4. Look for any other tables with revenue sharing data
+5. Search for content type classifications and percentage splits
+6. Look for terms like: "Content Type", "Revenue Share", "Cost of Content", "Yahoo", "OneFootball"
+
+EXHIBIT D TABLE PROCESSING:
+- Convert each table row into a separate rule
+- If a table has 10 rows, create 10 separate rules
+- Each row's conditions become the IF part of the rule
+- Each row's percentages/values become the THEN part of the rule
+- Pay special attention to table headers and column meanings
 
 TOKENIZATION RULES:
 - Convert ALL revenue sharing rules into IF-THEN token sequences
@@ -120,7 +129,7 @@ Return JSON with this schema:
   "rules": [
     {
       "id": "rule_1",
-      "name": "Yahoo Original Text Content Revenue Share",
+      "name": "Rule 1",
       "source": "where this was found (e.g., 'Exhibit D', 'Section 5', etc.)",
       "tokens": [
         { "id": "1", "type": "keyword", "value": "if", "editable": false },
@@ -141,17 +150,38 @@ Return JSON with this schema:
 }
 
 RULE NAMING GUIDELINES:
-- Use descriptive names that explain what the rule does
-- Examples: "Yahoo Original Text Content Revenue Share", "OneFootball Video Content Revenue Split", "Traffic Quality Bonus Rule"
-- Avoid generic names like "Rule 1", "Rule 2"
-- Include content type, partner, and purpose in the name
+- Use simple sequential names: "Rule 1", "Rule 2", "Rule 3", etc.
+- Keep names short and consistent
+- Number rules in order of importance or appearance in contract
 
 IMPORTANT: 
 - Each rule should be a simple IF-THEN statement
 - Break complex conditions into multiple rules
 - Generate unique sequential IDs for rules and tokens
 - Extract ALL revenue sharing logic, including thresholds and special conditions
-- Use descriptive, meaningful names for each rule`;
+- MINIMUM REQUIREMENT: Extract at least 12 rules from the contract
+- CRITICAL: Process Exhibit D tables row by row - each row = one rule
+- Look for ALL possible revenue sharing scenarios, edge cases, and special conditions
+- If you find fewer than 12 distinct rules, create additional rules for:
+  * Different content types (Text, Video, Audio, etc.)
+  * Different partner scenarios (Yahoo, OneFootball, Third-party, etc.)
+  * Different revenue thresholds and bonus conditions
+  * Different geographic or demographic conditions
+  * Different time-based conditions (seasonal, promotional periods)
+  * Different performance metrics and quality thresholds
+- Be thorough and creative in finding revenue sharing logic
+
+TABLE PROCESSING EXAMPLES:
+If Exhibit D has a table like:
+| Content Type | Media Type | Yahoo % | OneFootball % |
+| Yahoo Original | Text | 100 | 0 |
+| Yahoo Original | Video | 80 | 20 |
+| OneFootball Partner | Text | 0 | 100 |
+
+Create separate rules:
+- Rule 1: IF content_type == "Yahoo Original" AND media_type == "Text" THEN yahoo_rev = 100
+- Rule 2: IF content_type == "Yahoo Original" AND media_type == "Video" THEN yahoo_rev = 80 AND onefootball_rev = 20
+- Rule 3: IF content_type == "OneFootball Partner" AND media_type == "Text" THEN onefootball_rev = 100`;
 
   const resp = await client.chat.completions.create({
     model: appConfig.openai.model,
@@ -160,7 +190,22 @@ IMPORTANT:
       { role: "system", content: system },
       {
         role: "user",
-        content: `Search this entire contract for ANY revenue sharing information. Look especially for Exhibit D, tables, content types, and percentage splits. Here's the full text:\n\n${text}`,
+        content: `Search this entire contract for ALL revenue sharing information. 
+
+CRITICAL INSTRUCTIONS:
+1. Find Exhibit D (or similar exhibits) and process EVERY ROW in its tables as separate rules
+2. Each table row should become one rule with its specific conditions and percentages
+3. If Exhibit D has a table with 15 rows, create 15 separate rules
+4. Pay special attention to table headers and column meanings
+5. Extract at least 12 different rules covering various scenarios
+
+Look for:
+- Exhibit D tables (process row by row)
+- Other tables with revenue sharing data
+- Content types, percentage splits, thresholds, bonuses
+- Special conditions and edge cases
+
+Be thorough and creative in finding all possible revenue sharing logic. Here's the full text:\n\n${text}`,
       },
     ],
   });
