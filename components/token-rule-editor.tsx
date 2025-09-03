@@ -66,12 +66,13 @@ export function TokenRuleEditor({
   contractInfo,
 }: TokenRuleEditorProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [showChatPanel, setShowChatPanel] = useState(false);
   const [chatMessages, setChatMessages] = useState<Message[]>([
     {
       id: "1",
       type: "assistant",
       content:
-        "Hello! I can help you modify and create rules for contract 2-0000274176 using natural language. Try saying something like:\n\n• 'Change the revenue share to 30%'\n• 'Add a new rule for video content'\n• 'Remove the traffic quality rule'\n• 'Make all percentages editable'\n\nI'll understand your request and apply the changes to your rules automatically!",
+        "Hello! I can help you modify and create rules using natural language. Try saying something like:\n\n• 'Change the revenue share to 30%'\n• 'Add a new rule for video content'\n• 'Remove the traffic quality rule'\n• 'Make all percentages editable'\n\nI'll understand your request and apply the changes to your rules automatically!",
       timestamp: new Date(),
     },
   ]);
@@ -83,13 +84,12 @@ export function TokenRuleEditor({
   // Load extracted rules from API and initialize AI chat service
   useEffect(() => {
     const loadExtractedRules = async () => {
-      // Use hardcoded contract ID for demo purposes
-      const demoContractId = "demo-contract-2-0000274176";
+      if (!contractInfo?.id) return;
 
       setIsLoadingRules(true);
 
       try {
-        const response = await fetch(`/api/contracts/${demoContractId}/rules`);
+        const response = await fetch(`/api/contracts/${contractInfo.id}/rules`);
         if (response.ok) {
           const data = await response.json();
           const extractedRules = data.rules?.current?.rules || [];
@@ -428,7 +428,9 @@ export function TokenRuleEditor({
 
     try {
       // Call the API endpoint
-      const contractContext = "Contract: 2-0000274176 - Demo Partner";
+      const contractContext = contractInfo
+        ? `Contract: ${contractInfo.contractNumber} - ${contractInfo.partnerName}`
+        : "Contract context";
 
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -493,9 +495,11 @@ export function TokenRuleEditor({
   return (
     <div className="w-full mx-auto px-4">
       {/* Full height layout: AI panel spans from header to bottom */}
-      <div className={`grid grid-cols-[65%_35%] gap-4`}>
+      <div
+        className={`${showChatPanel ? "grid grid-cols-[65%_35%] gap-4" : ""}`}
+      >
         {/* Left side: Header + Rules (75% when AI open, 100% when closed) */}
-        <div className={`min-w-0`}>
+        <div className={`${showChatPanel ? "min-w-0" : "w-full"}`}>
           {/* Header */}
           <div className="mb-4 pb-3 border-b">
             <div className="flex items-center gap-3">
@@ -516,7 +520,9 @@ export function TokenRuleEditor({
                   Edit Rules
                 </h1>
                 <p className="text-xs text-slate-600 dark:text-slate-400">
-                  Modify rules for 2-0000274176 - Demo Partner
+                  {contractInfo
+                    ? `Modify rules for ${contractInfo.contractNumber} - ${contractInfo.partnerName}`
+                    : "Modify contract rules using editable tokens"}
                 </p>
               </div>
             </div>
@@ -554,13 +560,20 @@ export function TokenRuleEditor({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button onClick={addRule} size="sm" variant="outline">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Rule
+                          <Button
+                            variant={showChatPanel ? "default" : "outline"}
+                            size="icon"
+                            onClick={() => setShowChatPanel(!showChatPanel)}
+                          >
+                            <Bot className="h-4 w-4" />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Add New Rule</p>
+                          <p>
+                            {showChatPanel
+                              ? "Hide AI Assistant"
+                              : "Edit with AI"}
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -710,119 +723,165 @@ export function TokenRuleEditor({
         </div>
 
         {/* AI Chat Panel - Fixed to screen height, spans full height */}
-        <div className="min-w-0">
-          <Card className="h-[calc(100vh-180px)] border border-slate-200 sticky top-0">
-            <div className="flex items-center justify-between p-3 border-b">
-              <div className="flex items-center gap-2">
-                <Bot className="h-5 w-5 text-blue-600" />
-                <h3 className="font-semibold text-sm">AI Assistant</h3>
-              </div>
-            </div>
-
-            <div className="flex flex-col h-full">
-              <ScrollArea className="flex-1 p-3 h-[calc(100vh-330px)]">
-                <div className="space-y-3">
-                  {chatMessages.map((message) => (
-                    <div key={message.id}>
-                      <div
-                        className={`flex ${
-                          message.type === "user"
-                            ? "justify-end"
-                            : "justify-start"
-                        }`}
+        {showChatPanel && (
+          <div className="min-w-0">
+            <Card className="h-[calc(100vh-180px)] border border-slate-200 sticky top-0">
+              <div className="flex items-center justify-between p-3 border-b">
+                <div className="flex items-center gap-2">
+                  <Bot className="h-5 w-5 text-blue-600" />
+                  <h3 className="font-semibold text-sm">AI Assistant</h3>
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowChatPanel(false)}
+                        className="h-8 w-8 p-0"
                       >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Close AI Assistant</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+
+              <div className="flex flex-col h-full">
+                <ScrollArea className="flex-1 p-3 h-[calc(100vh-330px)]">
+                  <div className="space-y-3">
+                    {chatMessages.map((message) => (
+                      <div key={message.id}>
                         <div
-                          className={`flex max-w-[90%] ${
+                          className={`flex ${
                             message.type === "user"
-                              ? "flex-row-reverse"
-                              : "flex-row"
+                              ? "justify-end"
+                              : "justify-start"
                           }`}
                         >
-                          {/* Show avatar only for user messages */}
-                          {message.type === "user" && (
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white ml-2">
-                              <User className="h-3 w-3" />
-                            </div>
-                          )}
-
                           <div
-                            className={`rounded-lg px-3 py-2 ${
+                            className={`flex max-w-[90%] ${
                               message.type === "user"
-                                ? "bg-blue-600 text-white"
-                                : message.type === "system"
-                                ? "bg-green-600 text-white"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
+                                ? "flex-row-reverse"
+                                : "flex-row"
                             }`}
                           >
-                            <p className="text-xs leading-relaxed">
-                              {message.content}
-                            </p>
-                            <p
-                              className={`mt-1 text-[10px] ${
+                            {/* Show avatar only for user messages */}
+                            {message.type === "user" && (
+                              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white ml-2">
+                                <User className="h-3 w-3" />
+                              </div>
+                            )}
+
+                            <div
+                              className={`rounded-lg px-3 py-2 ${
                                 message.type === "user"
-                                  ? "text-blue-100"
+                                  ? "bg-blue-600 text-white"
                                   : message.type === "system"
-                                  ? "text-green-100"
-                                  : "text-slate-500 dark:text-slate-400"
+                                  ? "bg-green-600 text-white"
+                                  : "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
                               }`}
                             >
-                              {message.timestamp.toLocaleTimeString()}
-                            </p>
+                              <p className="text-xs leading-relaxed">
+                                {message.content}
+                              </p>
+                              <p
+                                className={`mt-1 text-[10px] ${
+                                  message.type === "user"
+                                    ? "text-blue-100"
+                                    : message.type === "system"
+                                    ? "text-green-100"
+                                    : "text-slate-500 dark:text-slate-400"
+                                }`}
+                              >
+                                {message.timestamp.toLocaleTimeString()}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-
-              <div className="p-2 border-t bg-white dark:bg-slate-900">
-                <div className="flex gap-2 items-end">
-                  <div className="flex-1 min-w-0">
-                    <Input
-                      placeholder={
-                        isProcessingMessage
-                          ? "Processing..."
-                          : "Ask me to modify rules..."
-                      }
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      className="w-full h-8 text-sm"
-                      disabled={isProcessingMessage}
-                    />
+                    ))}
                   </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          onClick={handleSendMessage}
-                          size="sm"
-                          disabled={isProcessingMessage || !chatInput.trim()}
-                          className="shrink-0 h-8 w-8"
-                        >
-                          {isProcessingMessage ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          ) : (
-                            <Send className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>
-                          {isProcessingMessage
+                </ScrollArea>
+
+                <div className="p-2 border-t bg-white dark:bg-slate-900">
+                  <div className="flex gap-2 items-end">
+                    <div className="flex-1 min-w-0">
+                      <Input
+                        placeholder={
+                          isProcessingMessage
                             ? "Processing..."
-                            : "Send Message"}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                            : "Ask me to modify rules..."
+                        }
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        className="w-full h-8 text-sm"
+                        disabled={isProcessingMessage}
+                      />
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            onClick={handleSendMessage}
+                            size="sm"
+                            disabled={isProcessingMessage || !chatInput.trim()}
+                            className="shrink-0 h-8 w-8"
+                          >
+                            {isProcessingMessage ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            ) : (
+                              <Send className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            {isProcessingMessage
+                              ? "Processing..."
+                              : "Send Message"}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Card>
-        </div>
+            </Card>
+          </div>
+        )}
       </div>
+
+      {/* No rules message - should be inside the main content area */}
+      {!showChatPanel && rules.length === 0 && (
+        <div className="text-center py-12">
+          <div className="text-slate-400 mb-4">
+            <Edit2 className="h-12 w-12 mx-auto" />
+          </div>
+          <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
+            No rules
+          </h3>
+          <p className="text-slate-600 dark:text-slate-400 mb-4">
+            Create your first rule to get started
+          </p>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={addRule} size="icon">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Add Rule</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      )}
     </div>
   );
 }

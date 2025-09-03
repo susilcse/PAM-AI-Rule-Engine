@@ -1,33 +1,21 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { X, Plus } from "lucide-react";
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
+import { X, Plus } from "lucide-react"
 
 interface ContractFormProps {
-  onClose: () => void;
-  onSave: (contract: any) => void;
-  contract?: any;
+  onClose: () => void
+  onSave: (contract: any) => void
+  contract?: any
 }
 
 export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
@@ -41,40 +29,37 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
     endDate: contract?.endDate || "",
     description: contract?.description || "",
     customFields: contract?.customFields || [],
-  });
+  })
 
-  const [newFieldName, setNewFieldName] = useState("");
-  const [newFieldValue, setNewFieldValue] = useState("");
+  const [newFieldName, setNewFieldName] = useState("")
+  const [newFieldValue, setNewFieldValue] = useState("")
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     onSave({
       ...formData,
       id: contract?.id || Date.now().toString(),
-    });
-    onClose();
-  };
+    })
+    onClose()
+  }
 
   const addCustomField = () => {
     if (newFieldName && newFieldValue) {
       setFormData((prev) => ({
         ...prev,
-        customFields: [
-          ...prev.customFields,
-          { name: newFieldName, value: newFieldValue },
-        ],
-      }));
-      setNewFieldName("");
-      setNewFieldValue("");
+        customFields: [...prev.customFields, { name: newFieldName, value: newFieldValue }],
+      }))
+      setNewFieldName("")
+      setNewFieldValue("")
     }
-  };
+  }
 
   const removeCustomField = (index: number) => {
     setFormData((prev) => ({
       ...prev,
       customFields: prev.customFields.filter((_, i) => i !== index),
-    }));
-  };
+    }))
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -82,11 +67,7 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <div>
             <CardTitle>{contract ? "Edit Contract" : "New Contract"}</CardTitle>
-            <CardDescription>
-              {contract
-                ? "Update contract details"
-                : "Create a new partner contract"}
-            </CardDescription>
+            <CardDescription>{contract ? "Update contract details" : "Create a new partner contract"}</CardDescription>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -100,13 +81,8 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
                 <Input
                   id="contractNumber"
                   value={formData.contractNumber}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      contractNumber: e.target.value,
-                    }))
-                  }
-                  placeholder="2-0000274176"
+                  onChange={(e) => setFormData((prev) => ({ ...prev, contractNumber: e.target.value }))}
+                  placeholder="CTR-2024-001"
                   required
                 />
               </div>
@@ -114,9 +90,7 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
                 <Label htmlFor="status">Status</Label>
                 <Select
                   value={formData.status}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, status: value }))
-                  }
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, status: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -136,12 +110,7 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
               <Input
                 id="partnerName"
                 value={formData.partnerName}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    partnerName: e.target.value,
-                  }))
-                }
+                onChange={(e) => setFormData((prev) => ({ ...prev, partnerName: e.target.value }))}
                 placeholder="Partner Company Name"
                 required
               />
@@ -153,12 +122,7 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
                 <Input
                   id="product"
                   value={formData.product}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      product: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => setFormData((prev) => ({ ...prev, product: e.target.value }))}
                   placeholder="Software License"
                   required
                 />
@@ -168,9 +132,7 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
                 <Input
                   id="market"
                   value={formData.market}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, market: e.target.value }))
-                  }
+                  onChange={(e) => setFormData((prev) => ({ ...prev, market: e.target.value }))}
                   placeholder="North America"
                   required
                 />
@@ -184,12 +146,7 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
                   id="startDate"
                   type="date"
                   value={formData.startDate}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      startDate: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => setFormData((prev) => ({ ...prev, startDate: e.target.value }))}
                 />
               </div>
               <div className="space-y-2">
@@ -198,12 +155,7 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
                   id="endDate"
                   type="date"
                   value={formData.endDate}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      endDate: e.target.value,
-                    }))
-                  }
+                  onChange={(e) => setFormData((prev) => ({ ...prev, endDate: e.target.value }))}
                 />
               </div>
             </div>
@@ -213,12 +165,7 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 placeholder="Contract description and notes..."
                 rows={3}
               />
@@ -235,10 +182,7 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
               {formData.customFields.length > 0 && (
                 <div className="space-y-2">
                   {formData.customFields.map((field: any, index: number) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-800 rounded-md"
-                    >
+                    <div key={index} className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-800 rounded-md">
                       <span className="text-sm font-medium">{field.name}:</span>
                       <span className="text-sm">{field.value}</span>
                       <Button
@@ -268,12 +212,7 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
                   onChange={(e) => setNewFieldValue(e.target.value)}
                   className="flex-1"
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={addCustomField}
-                >
+                <Button type="button" variant="outline" size="icon" onClick={addCustomField}>
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
@@ -291,5 +230,5 @@ export function ContractForm({ onClose, onSave, contract }: ContractFormProps) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

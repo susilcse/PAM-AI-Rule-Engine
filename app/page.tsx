@@ -74,7 +74,10 @@ export default function RuleEngineApp() {
     const contractId = Date.now().toString();
     const newContract: Contract = {
       id: contractId,
-      contractNumber: `2-0000274176`,
+      contractNumber: `CTR-2024-${String(contracts.length + 1).padStart(
+        3,
+        "0"
+      )}`,
       partnerName: file.name
         .split(".")[0]
         .replace(/[_-]/g, " ")
