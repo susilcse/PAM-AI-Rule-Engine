@@ -69,39 +69,28 @@ interface CalculationResult {
   onefootballAmount: number;
   yahooFinal: number;
   onefootballFinal: number;
+  customCalculation: number; // (revenue post cos * cost of content) + (yahoo revenue share)
 }
 
-// Sample data based on your CSV
+// Sample data based on sample_input_2.csv
 const sampleData: RevenueData[] = [
   {
     id: "1",
-    contentType: "OneFootball - AC Milan",
+    contentType: "OneFootball - Borussia Dortmund",
     mediaType: "Text",
-    grossRevenue: 12.11,
+    grossRevenue: 4.1,
   },
   {
     id: "2",
-    contentType: "OneFootball - AC Milan",
+    contentType: "OneFootball - Borussia Dortmund",
     mediaType: "Video",
-    grossRevenue: 19.2,
+    grossRevenue: 8.25,
   },
   {
     id: "3",
-    contentType: "OneFootball - Absolute Chelsea",
-    mediaType: "Text",
-    grossRevenue: 0.53,
-  },
-  {
-    id: "4",
-    contentType: "OneFootball - AFC Ajax",
+    contentType: "OneFootball - Borussia Mönchengladbach",
     mediaType: "Video",
-    grossRevenue: 1.25,
-  },
-  {
-    id: "5",
-    contentType: "OneFootball - AS Monaco",
-    mediaType: "Text",
-    grossRevenue: 3.86,
+    grossRevenue: 3.87,
   },
 ];
 
@@ -201,23 +190,25 @@ export function RevenueCalculator({
     const yahooRevShare = ruleValues.yahoo_rev || 60;
     const onefootballRevShare = ruleValues.onefootball_rev || 40;
 
-    // Step 1: Apply COS
+    // Step 1: Apply COS - Revenue Post COS = Gross Revenue * (1 - COS%)
     const revenuePostCOS = data.grossRevenue * (1 - cos / 100);
 
-    // Step 2: Calculate COC amount
-    const cocAmount = revenuePostCOS * (coc / 100);
+    // Step 2: Apply COC - Revenue Post COC = Revenue Post COS * (1 - COC%)
+    const revenuePostCOC = revenuePostCOS * (1 - coc / 100);
 
-    // Step 3: Revenue after COC deduction
-    const revenuePostCOC = revenuePostCOS - cocAmount;
+    // Step 3: Calculate COC amount for final calculation
+    const cocAmount = (coc / 100) * revenuePostCOS;
 
-    // Step 4: Calculate revenue shares
-    const yahooAmount = revenuePostCOC * (yahooRevShare / 100);
-    const onefootballAmount = revenuePostCOC * (onefootballRevShare / 100);
+    // Step 4: Calculate RevShare = Yahoo RevShare % * Revenue Post COC
+    const yahooAmount = (yahooRevShare / 100) * revenuePostCOC;
+    const onefootballAmount = (onefootballRevShare / 100) * revenuePostCOC;
 
-    // Step 5: Final amounts (adding back COC)
-    const yahooFinal = yahooAmount + (cocAmount * yahooRevShare) / 100;
-    const onefootballFinal =
-      onefootballAmount + (cocAmount * onefootballRevShare) / 100;
+    // Step 5: Yahoo Final = RevShare (pure revenue share calculation)
+    const yahooFinal = yahooAmount;
+    const onefootballFinal = onefootballAmount;
+
+    // Step 6: Custom calculation: (Revenue Post COS * Cost of Content %) + (Yahoo Revenue Share)
+    const customCalculation = (revenuePostCOS * coc) / 100 + yahooAmount;
 
     return {
       id: data.id,
@@ -235,6 +226,7 @@ export function RevenueCalculator({
       onefootballAmount,
       yahooFinal,
       onefootballFinal,
+      customCalculation,
     };
   };
 
@@ -412,6 +404,7 @@ export function RevenueCalculator({
                     <TableHead className="text-right">
                       OneFootball Final
                     </TableHead>
+                    <TableHead className="text-right">Custom Calc</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -460,6 +453,9 @@ export function RevenueCalculator({
                       </TableCell>
                       <TableCell className="text-right font-mono font-bold text-blue-600">
                         {formatCurrency(result.onefootballFinal)}
+                      </TableCell>
+                      <TableCell className="text-right font-mono font-bold text-purple-600">
+                        {formatCurrency(result.customCalculation)}
                       </TableCell>
                     </TableRow>
                   ))}
