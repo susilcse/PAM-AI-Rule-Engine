@@ -53,6 +53,7 @@ interface Message {
 
 interface TokenRuleEditorProps {
   onBack?: () => void;
+  onFinalizeRules?: (rules: TokenRule[]) => void;
   contractInfo?: {
     id: string;
     contractNumber: string;
@@ -62,6 +63,7 @@ interface TokenRuleEditorProps {
 
 export function TokenRuleEditor({
   onBack,
+  onFinalizeRules,
   contractInfo,
 }: TokenRuleEditorProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -695,6 +697,19 @@ export function TokenRuleEditor({
                 )}
               </div>
             </Card>
+
+            {/* Finalize Rules Button */}
+            {rules.length > 0 && onFinalizeRules && (
+              <div className="mt-4 flex justify-center">
+                <Button
+                  onClick={() => onFinalizeRules(rules)}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2"
+                  size="lg"
+                >
+                  Finalize Rules & Calculate Revenue
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
