@@ -116,6 +116,8 @@ export async function POST(request: NextRequest) {
           "content type",
           "revenue share",
           "cost of content",
+          "cost of sales",
+          "rev share to partner",
           "yahoo",
           "onefootball",
         ];

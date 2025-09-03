@@ -86,7 +86,7 @@ SEARCH STRATEGY:
 3. Each table row should become one rule with its specific conditions and percentages
 4. Look for any other tables with revenue sharing data
 5. Search for content type classifications and percentage splits
-6. Look for terms like: "Content Type", "Revenue Share", "Cost of Content", "Yahoo", "OneFootball"
+6. Look for terms like: "Content Type", "Revenue Share", "Cost of Content", "Cost of Sales", "Rev Share to Partner", "Yahoo", "OneFootball"
 
 EXHIBIT D TABLE PROCESSING:
 - Convert each table row into a separate rule
@@ -94,6 +94,10 @@ EXHIBIT D TABLE PROCESSING:
 - Each row's conditions become the IF part of the rule
 - Each row's percentages/values become the THEN part of the rule
 - Pay special attention to table headers and column meanings
+- CRITICAL: Look for "Rev Share to Partner (Cost of Content)" column and extract as "coc"
+- CRITICAL: Look for "Cost of Sales" terms in Exhibit D Part 1, Part 2, and Part 3
+- MANDATORY: Include cos, coc, yahoo_rev, and onefootball_rev variables in EVERY rule's THEN part
+- Set missing values to 0 rather than omitting them
 
 TOKENIZATION RULES:
 - Convert ALL revenue sharing rules into IF-THEN token sequences
@@ -108,7 +112,9 @@ VARIABLE NAMING EXAMPLES:
 - media_type (Text, Video)
 - yahoo_rev (revenue percentage for Yahoo)
 - onefootball_rev (revenue percentage for OneFootball)
-- cost_of_content (cost percentage)
+- cos (cost of sales percentage)
+- coc (cost of content percentage)
+- cost_of_content (cost percentage - alternative name for coc)
 - revenue_threshold (dollar amounts)
 
 TOKEN TYPES:
@@ -141,9 +147,21 @@ Return JSON with this schema:
         { "id": "7", "type": "operator", "value": "==", "editable": true },
         { "id": "8", "type": "value", "value": "Text", "editable": true },
         { "id": "9", "type": "keyword", "value": "then", "editable": false },
-        { "id": "10", "type": "variable", "value": "yahoo_rev", "editable": true },
+        { "id": "10", "type": "variable", "value": "cos", "editable": true },
         { "id": "11", "type": "operator", "value": "=", "editable": true },
-        { "id": "12", "type": "value", "value": "100", "editable": true }
+        { "id": "12", "type": "value", "value": "10", "editable": true },
+        { "id": "13", "type": "keyword", "value": "and", "editable": false },
+        { "id": "14", "type": "variable", "value": "coc", "editable": true },
+        { "id": "15", "type": "operator", "value": "=", "editable": true },
+        { "id": "16", "type": "value", "value": "12", "editable": true },
+        { "id": "17", "type": "keyword", "value": "and", "editable": false },
+        { "id": "18", "type": "variable", "value": "yahoo_rev", "editable": true },
+        { "id": "19", "type": "operator", "value": "=", "editable": true },
+        { "id": "20", "type": "value", "value": "100", "editable": true },
+        { "id": "21", "type": "keyword", "value": "and", "editable": false },
+        { "id": "22", "type": "variable", "value": "onefootball_rev", "editable": true },
+        { "id": "23", "type": "operator", "value": "=", "editable": true },
+        { "id": "24", "type": "value", "value": "0", "editable": true }
       ]
     }
   ]
@@ -173,15 +191,23 @@ IMPORTANT:
 
 TABLE PROCESSING EXAMPLES:
 If Exhibit D has a table like:
-| Content Type | Media Type | Yahoo % | OneFootball % |
-| Yahoo Original | Text | 100 | 0 |
-| Yahoo Original | Video | 80 | 20 |
-| OneFootball Partner | Text | 0 | 100 |
+| Content Type | Media Type | COS % | Rev Share to Partner (Cost of Content) % | Yahoo % | OneFootball % |
+| Yahoo Original | Text | 10 | 12 | 100 | 0 |
+| Yahoo Original | Video | 10 | 0 | 80 | 20 |
+| OneFootball Partner | Text | 15 | 8 | 0 | 100 |
 
 Create separate rules:
-- Rule 1: IF content_type == "Yahoo Original" AND media_type == "Text" THEN yahoo_rev = 100
-- Rule 2: IF content_type == "Yahoo Original" AND media_type == "Video" THEN yahoo_rev = 80 AND onefootball_rev = 20
-- Rule 3: IF content_type == "OneFootball Partner" AND media_type == "Text" THEN onefootball_rev = 100`;
+- Rule 1: IF content_type == "Yahoo Original" AND media_type == "Text" THEN cos = 10 AND coc = 12 AND yahoo_rev = 100 AND onefootball_rev = 0
+- Rule 2: IF content_type == "Yahoo Original" AND media_type == "Video" THEN cos = 10 AND coc = 0 AND yahoo_rev = 80 AND onefootball_rev = 20
+- Rule 3: IF content_type == "OneFootball Partner" AND media_type == "Text" THEN cos = 15 AND coc = 8 AND yahoo_rev = 0 AND onefootball_rev = 100
+
+IMPORTANT COS/COC EXTRACTION NOTES:
+- ALWAYS include cos, coc, yahoo_rev, and onefootball_rev in EVERY rule's THEN part
+- If no COS/COC values are found for a rule, set them to 0
+- If any revenue share is 0, still include it in the rule
+- Look for variations: "Cost of Sales", "COS", "Cost of Content", "COC", "Rev Share to Partner (Cost of Content)"
+- COS and COC percentages should be extracted as numbers without % symbol
+- Every rule must have: cos = X AND coc = Y AND yahoo_rev = Z AND onefootball_rev = W`;
 
   const resp = await client.chat.completions.create({
     model: appConfig.openai.model,
@@ -198,11 +224,14 @@ CRITICAL INSTRUCTIONS:
 3. If Exhibit D has a table with 15 rows, create 15 separate rules
 4. Pay special attention to table headers and column meanings
 5. Extract at least 12 different rules covering various scenarios
+6. MANDATORY: Every rule must include cos, coc, yahoo_rev, and onefootball_rev in the THEN part (set to 0 if not found)
 
 Look for:
 - Exhibit D tables (process row by row)
 - Other tables with revenue sharing data
 - Content types, percentage splits, thresholds, bonuses
+- Cost of Sales (COS) percentages in any part of Exhibit D
+- "Rev Share to Partner (Cost of Content)" or COC percentages
 - Special conditions and edge cases
 
 Be thorough and creative in finding all possible revenue sharing logic. Here's the full text:\n\n${text}`,

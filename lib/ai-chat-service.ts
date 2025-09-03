@@ -117,7 +117,8 @@ RULE MODIFICATION PATTERNS:
 1. VALUE CHANGES:
    - "Change revenue share to 30%" → Update yahoo_rev or onefootball_rev token value
    - "Set traffic quality to 85%" → Update traffic_quality token value
-   - "Make cost of sales 20%" → Update cost_of_sales token value
+   - "Make cost of sales 20%" → Update cos token value
+   - "Set cost of content to 12%" → Update coc token value
 
 2. RULE CREATION:
    - "Add a new rule for video content" → Create new rule with video-specific tokens
