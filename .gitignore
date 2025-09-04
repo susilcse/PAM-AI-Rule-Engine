@@ -30,3 +30,6 @@ next-env.d.ts
 /temp-contracts/
 /contract-rules/
 /project-m/
+
+# macOS system files
+.DS_Store
