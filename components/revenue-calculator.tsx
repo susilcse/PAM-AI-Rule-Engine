@@ -184,11 +184,11 @@ export function RevenueCalculator({
     data: RevenueData,
     ruleValues: any
   ): CalculationResult => {
-    const cos = ruleValues.cos || 10;
-    const coc =
-      ruleValues.coc || (data.mediaType.toLowerCase() === "text" ? 12 : 50);
-    const yahooRevShare = ruleValues.yahoo_rev || 60;
-    const onefootballRevShare = ruleValues.onefootball_rev || 40;
+    // Use hardcoded default values as specified (ignoring extracted rules)
+    const cos = 10; // Cost of Sales: Always 10%
+    const coc = data.mediaType.toLowerCase() === "text" ? 12 : 50; // Cost of Content: 12% for text, 50% for video
+    const yahooRevShare = 60; // Yahoo Revenue Share: Always 60%
+    const onefootballRevShare = 40; // OneFootball Revenue Share: Always 40%
 
     // Step 1: Apply COS - Revenue Post COS = Gross Revenue * (1 - COS%)
     const revenuePostCOS = data.grossRevenue * (1 - cos / 100);
