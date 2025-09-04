@@ -82,17 +82,18 @@ You are a contract rules extractor that converts revenue sharing information int
 
 SEARCH STRATEGY:
 1. FIRST PRIORITY: Look for "Exhibit D" or similar exhibits/appendices
-2. CRITICAL: Extract EVERY ROW from Exhibit D tables as separate rules
-3. Each table row should become one rule with its specific conditions and percentages
+2. CRITICAL: Extract ONLY TWO SPECIFIC RULES from tables:
+   - "OneFootball Partner [Text]" rule
+   - "OneFootball Partner [Video]" rule
+3. Each of these two rules should have their specific conditions and percentages
 4. Look for any other tables with revenue sharing data
 5. Search for content type classifications and percentage splits
 6. Look for terms like: "Content Type", "Revenue Share", "Cost of Content", "Cost of Sales", "Rev Share to Partner", "Yahoo", "OneFootball"
 
 EXHIBIT D TABLE PROCESSING:
-- Convert each table row into a separate rule
-- If a table has 10 rows, create 10 separate rules
-- Each row's conditions become the IF part of the rule
-- Each row's percentages/values become the THEN part of the rule
+- Extract ONLY the two specific OneFootball Partner rules (Text and Video)
+- Each rule's conditions become the IF part of the rule
+- Each rule's percentages/values become the THEN part of the rule
 - Pay special attention to table headers and column meanings
 - CRITICAL: Look for "Rev Share to Partner (Cost of Content)" column and extract as "coc"
 - CRITICAL: Look for "Cost of Sales" terms in Exhibit D Part 1, Part 2, and Part 3
@@ -100,15 +101,14 @@ EXHIBIT D TABLE PROCESSING:
 - Set missing values to 0 rather than omitting them
 
 TOKENIZATION RULES:
-- Convert ALL revenue sharing rules into IF-THEN token sequences
-- Break complex rules into multiple simple rules
+- Convert ONLY the two OneFootball Partner rules into IF-THEN token sequences
 - Use snake_case for variable names (content_type, yahoo_rev, onefootball_rev)
 - Convert percentages to numbers without % symbol (100% becomes 100)
 - Use logical keywords: "if", "and", "or", "then"
 - Use operators: "==", "!=", ">", "<", ">=", "<=", "="
 
 VARIABLE NAMING EXAMPLES:
-- content_type (Yahoo Original, OneFootball Partner, etc.)
+- content_type (OneFootball Partner)
 - media_type (Text, Video)
 - yahoo_rev (revenue percentage for Yahoo)
 - onefootball_rev (revenue percentage for OneFootball)
@@ -141,7 +141,7 @@ Return JSON with this schema:
         { "id": "1", "type": "keyword", "value": "if", "editable": false },
         { "id": "2", "type": "variable", "value": "content_type", "editable": true },
         { "id": "3", "type": "operator", "value": "==", "editable": true },
-        { "id": "4", "type": "value", "value": "Yahoo Original", "editable": true },
+        { "id": "4", "type": "value", "value": "OneFootball Partner", "editable": true },
         { "id": "5", "type": "keyword", "value": "and", "editable": false },
         { "id": "6", "type": "variable", "value": "media_type", "editable": true },
         { "id": "7", "type": "operator", "value": "==", "editable": true },
@@ -174,32 +174,23 @@ RULE NAMING GUIDELINES:
 
 IMPORTANT: 
 - Each rule should be a simple IF-THEN statement
-- Break complex conditions into multiple rules
 - Generate unique sequential IDs for rules and tokens
-- Extract ALL revenue sharing logic, including thresholds and special conditions
-- MINIMUM REQUIREMENT: Extract at least 12 rules from the contract
-- CRITICAL: Process Exhibit D tables row by row - each row = one rule
-- Look for ALL possible revenue sharing scenarios, edge cases, and special conditions
-- If you find fewer than 12 distinct rules, create additional rules for:
-  * Different content types (Text, Video, Audio, etc.)
-  * Different partner scenarios (Yahoo, OneFootball, Third-party, etc.)
-  * Different revenue thresholds and bonus conditions
-  * Different geographic or demographic conditions
-  * Different time-based conditions (seasonal, promotional periods)
-  * Different performance metrics and quality thresholds
-- Be thorough and creative in finding revenue sharing logic
+- Extract ONLY the two specific OneFootball Partner rules
+- CRITICAL: Extract EXACTLY 2 rules from the contract:
+  * OneFootball Partner [Text] rule
+  * OneFootball Partner [Video] rule
+- Focus specifically on OneFootball Partner content type with Text and Video media types
+- Do not extract any other content types or partner scenarios
 
 TABLE PROCESSING EXAMPLES:
 If Exhibit D has a table like:
 | Content Type | Media Type | COS % | Rev Share to Partner (Cost of Content) % | Yahoo % | OneFootball % |
-| Yahoo Original | Text | 10 | 12 | 100 | 0 |
-| Yahoo Original | Video | 10 | 0 | 80 | 20 |
 | OneFootball Partner | Text | 15 | 8 | 0 | 100 |
+| OneFootball Partner | Video | 20 | 12 | 0 | 100 |
 
-Create separate rules:
-- Rule 1: IF content_type == "Yahoo Original" AND media_type == "Text" THEN cos = 10 AND coc = 12 AND yahoo_rev = 100 AND onefootball_rev = 0
-- Rule 2: IF content_type == "Yahoo Original" AND media_type == "Video" THEN cos = 10 AND coc = 0 AND yahoo_rev = 80 AND onefootball_rev = 20
-- Rule 3: IF content_type == "OneFootball Partner" AND media_type == "Text" THEN cos = 15 AND coc = 8 AND yahoo_rev = 0 AND onefootball_rev = 100
+Create ONLY these two rules:
+- Rule 1: IF content_type == "OneFootball Partner" AND media_type == "Text" THEN cos = 15 AND coc = 8 AND yahoo_rev = 0 AND onefootball_rev = 100
+- Rule 2: IF content_type == "OneFootball Partner" AND media_type == "Video" THEN cos = 20 AND coc = 12 AND yahoo_rev = 0 AND onefootball_rev = 100
 
 IMPORTANT COS/COC EXTRACTION NOTES:
 - ALWAYS include cos, coc, yahoo_rev, and onefootball_rev in EVERY rule's THEN part
@@ -216,25 +207,22 @@ IMPORTANT COS/COC EXTRACTION NOTES:
       { role: "system", content: system },
       {
         role: "user",
-        content: `Search this entire contract for ALL revenue sharing information. 
+        content: `Search this entire contract for OneFootball Partner revenue sharing information. 
 
 CRITICAL INSTRUCTIONS:
-1. Find Exhibit D (or similar exhibits) and process EVERY ROW in its tables as separate rules
-2. Each table row should become one rule with its specific conditions and percentages
-3. If Exhibit D has a table with 15 rows, create 15 separate rules
+1. Find Exhibit D (or similar exhibits) and extract ONLY OneFootball Partner rules
+2. Extract EXACTLY 2 rules: OneFootball Partner [Text] and OneFootball Partner [Video]
+3. Each rule should have its specific conditions and percentages
 4. Pay special attention to table headers and column meanings
-5. Extract at least 12 different rules covering various scenarios
-6. MANDATORY: Every rule must include cos, coc, yahoo_rev, and onefootball_rev in the THEN part (set to 0 if not found)
+5. MANDATORY: Every rule must include cos, coc, yahoo_rev, and onefootball_rev in the THEN part (set to 0 if not found)
 
 Look for:
-- Exhibit D tables (process row by row)
-- Other tables with revenue sharing data
-- Content types, percentage splits, thresholds, bonuses
-- Cost of Sales (COS) percentages in any part of Exhibit D
-- "Rev Share to Partner (Cost of Content)" or COC percentages
-- Special conditions and edge cases
+- Exhibit D tables with OneFootball Partner entries
+- Content type "OneFootball Partner" with media types "Text" and "Video"
+- Cost of Sales (COS) percentages for OneFootball Partner content
+- "Rev Share to Partner (Cost of Content)" or COC percentages for OneFootball Partner content
 
-Be thorough and creative in finding all possible revenue sharing logic. Here's the full text:\n\n${text}`,
+Focus ONLY on OneFootball Partner content type. Ignore all other content types and partners. Here's the full text:\n\n${text}`,
       },
     ],
   });
