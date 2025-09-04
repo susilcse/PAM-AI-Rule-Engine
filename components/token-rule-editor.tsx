@@ -91,9 +91,12 @@ export function TokenRuleEditor({
 
       try {
         const response = await fetch(`/api/contracts/${contractInfo.id}/rules`);
+        console.log("🔍 TokenRuleEditor API response:", response);
         if (response.ok) {
           const data = await response.json();
+          console.log("🔍 TokenRuleEditor API data:", data);
           const extractedRules = data.rules?.current?.rules || [];
+          console.log("🔍 TokenRuleEditor extracted rules:", extractedRules);
 
           // Convert extracted rules to TokenRule format
           const tokenRules: TokenRule[] = extractedRules.map((rule: any) => ({
@@ -103,10 +106,15 @@ export function TokenRuleEditor({
             tokens: rule.tokens || [],
           }));
 
+          console.log("🔍 TokenRuleEditor converted rules:", tokenRules);
+
           if (tokenRules.length > 0) {
             setRules(tokenRules);
           } else {
             // No rules found, use fallback dummy rules
+            console.log(
+              "⚠️ No extracted rules found, using fallback dummy rules"
+            );
             setRules([
               {
                 id: "revenue-share",
