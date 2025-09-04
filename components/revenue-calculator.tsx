@@ -18,6 +18,7 @@ import {
   Upload,
   X,
   FileText,
+  Download,
 } from "lucide-react";
 import {
   Table,
@@ -432,6 +433,66 @@ export function RevenueCalculator({
     return `${value}%`;
   };
 
+  // Download results as CSV
+  const downloadResultsAsCSV = () => {
+    if (results.length === 0) return;
+
+    // Create CSV headers
+    const headers = [
+      "Content Type",
+      "Media Type",
+      "Gross Revenue",
+      "COS %",
+      "Revenue Post COS",
+      "COC %",
+      "COC Amount",
+      "Revenue Post COC",
+      "Yahoo %",
+      "OneFootball %",
+      "RevShare",
+      "OneFootball Payout",
+      "RevShare + COC",
+    ];
+
+    // Create CSV rows
+    const csvRows = results.map((result) => [
+      result.contentType,
+      result.mediaType,
+      result.grossRevenue.toFixed(2),
+      (result.cos * 100).toFixed(1),
+      result.revenuePostCOS.toFixed(2),
+      (result.coc * 100).toFixed(1),
+      result.cocAmount.toFixed(2),
+      result.revenuePostCOC.toFixed(2),
+      (result.yahooRevShare * 100).toFixed(1),
+      (result.onefootballRevShare * 100).toFixed(1),
+      result.yahooFinal.toFixed(2),
+      result.onefootballFinal.toFixed(2),
+      (result.yahooFinal + result.onefootballFinal).toFixed(2),
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [headers, ...csvRows]
+      .map((row) => row.map((field) => `"${field}"`).join(","))
+      .join("\n");
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `revenue_calculation_results_${
+        new Date().toISOString().split("T")[0]
+      }.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="w-full mx-auto px-4">
       <div className="mb-6">
@@ -621,14 +682,27 @@ export function RevenueCalculator({
       {results.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Revenue Calculation Results
-            </CardTitle>
-            <CardDescription>
-              Detailed breakdown showing COS, COC, and revenue share
-              calculations
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Revenue Calculation Results
+                </CardTitle>
+                <CardDescription>
+                  Detailed breakdown showing COS, COC, and revenue share
+                  calculations
+                </CardDescription>
+              </div>
+              <Button
+                onClick={downloadResultsAsCSV}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download CSV
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -649,11 +723,11 @@ export function RevenueCalculator({
                     </TableHead>
                     <TableHead className="text-right">Yahoo %</TableHead>
                     <TableHead className="text-right">OneFootball %</TableHead>
-                    <TableHead className="text-right">Yahoo Final</TableHead>
+                    <TableHead className="text-right">RevShare</TableHead>
                     <TableHead className="text-right">
-                      OneFootball Final
+                      OneFootball Payout
                     </TableHead>
-                    <TableHead className="text-right">Custom Calc</TableHead>
+                    <TableHead className="text-right">RevShare + COC</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -741,7 +815,7 @@ export function RevenueCalculator({
               <Card>
                 <CardContent className="p-4">
                   <div className="text-sm font-medium text-slate-600">
-                    Total OneFootball Revenue
+                    Total OneFootball Payout
                   </div>
                   <div className="text-2xl font-bold text-blue-600">
                     {formatCurrency(

@@ -28,6 +28,7 @@ import {
 import { ContractSummaryPanel } from "@/components/contract-summary-panel";
 import { TokenRuleEditor } from "@/components/token-rule-editor";
 import { RevenueCalculator } from "@/components/revenue-calculator";
+import { useToast } from "@/hooks/use-toast";
 
 interface Contract {
   id: string;
@@ -41,6 +42,7 @@ interface Contract {
 type PageView = "home" | "contracts" | "rules" | "revenue-calculator";
 
 export default function RuleEngineApp() {
+  const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState<PageView>("home");
   const [selectedContractId, setSelectedContractId] = useState<string | null>(
     null
@@ -73,7 +75,11 @@ export default function RuleEngineApp() {
 
     // Validate file type
     if (!file.name.toLowerCase().endsWith(".pdf")) {
-      alert("Please upload a PDF file only.");
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PDF file only.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -127,14 +133,19 @@ export default function RuleEngineApp() {
         [contractId]: result.rules,
       }));
 
-      alert(
-        `Contract analysis completed! Found ${
+      toast({
+        title: "Contract analysis completed!",
+        description: `Found ${
           result.rules?.rules?.length || 0
-        } rules.`
-      );
+        } rules extracted successfully.`,
+      });
     } catch (error: any) {
       console.error("❌ Contract analysis failed:", error);
-      alert(`Failed to analyze contract: ${error.message}`);
+      toast({
+        title: "Analysis failed",
+        description: `Failed to analyze contract: ${error.message}`,
+        variant: "destructive",
+      });
     } finally {
       setIsProcessing(false);
       setProcessingContractId(null);
@@ -332,6 +343,24 @@ export default function RuleEngineApp() {
                   </p>
                 </div>
 
+                {/* Processing Indicator */}
+                {isProcessing && (
+                  <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                      <div>
+                        <p className="font-medium text-blue-900 dark:text-blue-100">
+                          Processing contract...
+                        </p>
+                        <p className="text-sm text-blue-700 dark:text-blue-300">
+                          AI is analyzing the contract and extracting rules.
+                          This may take a few moments.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {contracts.map((contract) => (
                     <Card
@@ -392,21 +421,10 @@ export default function RuleEngineApp() {
                                     e.stopPropagation();
                                     handleContractSelect(contract.id);
                                   }}
-                                  disabled={
-                                    processingContractId === contract.id
-                                  }
+                                  disabled={isProcessing}
                                 >
-                                  {processingContractId === contract.id ? (
-                                    <>
-                                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                      Processing...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Bot className="h-4 w-4 mr-2" />
-                                      Rules
-                                    </>
-                                  )}
+                                  <Bot className="h-4 w-4 mr-2" />
+                                  Rules
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -427,8 +445,7 @@ export default function RuleEngineApp() {
                                   size="sm"
                                   className="flex-1"
                                   disabled={
-                                    (isProcessing &&
-                                      processingContractId === contract.id) ||
+                                    isProcessing ||
                                     !contractSummaries[contract.id]
                                   }
                                   onClick={(e) => {
@@ -436,30 +453,16 @@ export default function RuleEngineApp() {
                                     handleSummaryToggle(contract.id);
                                   }}
                                 >
-                                  {isProcessing &&
-                                  processingContractId === contract.id ? (
-                                    <>
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                                      Processing...
-                                    </>
-                                  ) : contractSummaries[contract.id] ? (
-                                    <>
-                                      <FileBarChart className="h-4 w-4 mr-2" />
-                                      Summary
-                                    </>
-                                  ) : (
-                                    <>
-                                      <FileBarChart className="h-4 w-4 mr-2" />
-                                      No Summary
-                                    </>
-                                  )}
+                                  <FileBarChart className="h-4 w-4 mr-2" />
+                                  {contractSummaries[contract.id]
+                                    ? "Summary"
+                                    : "No Summary"}
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>
-                                  {isProcessing &&
-                                  processingContractId === contract.id
-                                    ? "AI is analyzing the contract..."
+                                  {isProcessing
+                                    ? "Processing in progress..."
                                     : contractSummaries[contract.id]
                                     ? "View AI-generated summary"
                                     : "Summary not available yet"}
