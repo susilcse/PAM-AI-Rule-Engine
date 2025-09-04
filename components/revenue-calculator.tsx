@@ -651,9 +651,9 @@ export function RevenueCalculator({
                     <TableHead className="text-right">OneFootball %</TableHead>
                     <TableHead className="text-right">Yahoo Final</TableHead>
                     <TableHead className="text-right">
-                      OneFootball Final
+                      OneFootball Payout
                     </TableHead>
-                    <TableHead className="text-right">Custom Calc</TableHead>
+                    <TableHead className="text-right">RevShare + COC</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -741,7 +741,7 @@ export function RevenueCalculator({
               <Card>
                 <CardContent className="p-4">
                   <div className="text-sm font-medium text-slate-600">
-                    Total OneFootball Revenue
+                    Total OneFootball Payout
                   </div>
                   <div className="text-2xl font-bold text-blue-600">
                     {formatCurrency(
