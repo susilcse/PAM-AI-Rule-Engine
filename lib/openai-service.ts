@@ -135,7 +135,7 @@ Return JSON with this schema:
   "rules": [
     {
       "id": "rule_1",
-      "name": "Rule 1",
+      "name": "OneFootBall text",
       "source": "where this was found (e.g., 'Exhibit D', 'Section 5', etc.)",
       "tokens": [
         { "id": "1", "type": "keyword", "value": "if", "editable": false },
@@ -163,14 +163,45 @@ Return JSON with this schema:
         { "id": "23", "type": "operator", "value": "=", "editable": true },
         { "id": "24", "type": "value", "value": "0", "editable": true }
       ]
+    },
+    {
+      "id": "rule_2",
+      "name": "OneFootBall Video",
+      "source": "where this was found (e.g., 'Exhibit D', 'Section 5', etc.)",
+      "tokens": [
+        { "id": "25", "type": "keyword", "value": "if", "editable": false },
+        { "id": "26", "type": "variable", "value": "content_type", "editable": true },
+        { "id": "27", "type": "operator", "value": "==", "editable": true },
+        { "id": "28", "type": "value", "value": "OneFootball Partner", "editable": true },
+        { "id": "29", "type": "keyword", "value": "and", "editable": false },
+        { "id": "30", "type": "variable", "value": "media_type", "editable": true },
+        { "id": "31", "type": "operator", "value": "==", "editable": true },
+        { "id": "32", "type": "value", "value": "Video", "editable": true },
+        { "id": "33", "type": "keyword", "value": "then", "editable": false },
+        { "id": "34", "type": "variable", "value": "cos", "editable": true },
+        { "id": "35", "type": "operator", "value": "=", "editable": true },
+        { "id": "36", "type": "value", "value": "15", "editable": true },
+        { "id": "37", "type": "keyword", "value": "and", "editable": false },
+        { "id": "38", "type": "variable", "value": "coc", "editable": true },
+        { "id": "39", "type": "operator", "value": "=", "editable": true },
+        { "id": "40", "type": "value", "value": "18", "editable": true },
+        { "id": "41", "type": "keyword", "value": "and", "editable": false },
+        { "id": "42", "type": "variable", "value": "yahoo_rev", "editable": true },
+        { "id": "43", "type": "operator", "value": "=", "editable": true },
+        { "id": "44", "type": "value", "value": "0", "editable": true },
+        { "id": "45", "type": "keyword", "value": "and", "editable": false },
+        { "id": "46", "type": "variable", "value": "onefootball_rev", "editable": true },
+        { "id": "47", "type": "operator", "value": "=", "editable": true },
+        { "id": "48", "type": "value", "value": "100", "editable": true }
+      ]
     }
   ]
 }
 
 RULE NAMING GUIDELINES:
-- Use simple sequential names: "Rule 1", "Rule 2", "Rule 3", etc.
-- Keep names short and consistent
-- Number rules in order of importance or appearance in contract
+- Use descriptive OneFootball-specific names: "OneFootBall text", "OneFootBall Video", etc.
+- Keep names consistent with content type and media type
+- Use descriptive names that reflect the rule purpose
 
 IMPORTANT: 
 - Each rule should be a simple IF-THEN statement
@@ -189,8 +220,8 @@ If Exhibit D has a table like:
 | OneFootball Partner | Video | 20 | 12 | 0 | 100 |
 
 Create ONLY these two rules:
-- Rule 1: IF content_type == "OneFootball Partner" AND media_type == "Text" THEN cos = 15 AND coc = 8 AND yahoo_rev = 0 AND onefootball_rev = 100
-- Rule 2: IF content_type == "OneFootball Partner" AND media_type == "Video" THEN cos = 20 AND coc = 12 AND yahoo_rev = 0 AND onefootball_rev = 100
+- OneFootBall text: IF content_type == "OneFootball Partner" AND media_type == "Text" THEN cos = 15 AND coc = 8 AND yahoo_rev = 0 AND onefootball_rev = 100
+- OneFootBall Video: IF content_type == "OneFootball Partner" AND media_type == "Video" THEN cos = 20 AND coc = 12 AND yahoo_rev = 0 AND onefootball_rev = 100
 
 IMPORTANT COS/COC EXTRACTION NOTES:
 - ALWAYS include cos, coc, yahoo_rev, and onefootball_rev in EVERY rule's THEN part
