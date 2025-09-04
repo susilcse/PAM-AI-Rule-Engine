@@ -146,13 +146,36 @@ export function RevenueCalculator({
           tokens[i].value === "content_type" &&
           tokens[i + 1].value === "==" &&
           tokens[i + 2].value
-            .toLowerCase()
-            .includes(
-              contentType.toLowerCase().split(" ")[1] ||
-                contentType.toLowerCase()
-            )
         ) {
-          contentMatch = true;
+          const ruleContentType = tokens[i + 2].value.toLowerCase();
+          const dataContentType = contentType.toLowerCase();
+
+          // Check for OneFootball Partner matching
+          if (
+            ruleContentType === "onefootball partner" &&
+            dataContentType.includes("onefootball")
+          ) {
+            contentMatch = true;
+            console.log(
+              `✅ Content match found (OneFootball): ${
+                tokens[i + 2].value
+              } matches ${contentType}`
+            );
+          }
+          // Check for exact match or partial match
+          else if (
+            ruleContentType.includes(
+              dataContentType.split(" ")[1] || dataContentType
+            ) ||
+            dataContentType.includes(ruleContentType)
+          ) {
+            contentMatch = true;
+            console.log(
+              `✅ Content match found: ${
+                tokens[i + 2].value
+              } matches ${contentType}`
+            );
+          }
         }
         if (
           tokens[i].type === "variable" &&
@@ -197,11 +220,12 @@ export function RevenueCalculator({
     data: RevenueData,
     ruleValues: any
   ): CalculationResult => {
-    // Use hardcoded default values as specified (ignoring extracted rules)
-    const cos = 10; // Cost of Sales: Always 10%
-    const coc = data.mediaType.toLowerCase() === "text" ? 12 : 50; // Cost of Content: 12% for text, 50% for video
-    const yahooRevShare = 60; // Yahoo Revenue Share: Always 60%
-    const onefootballRevShare = 40; // OneFootball Revenue Share: Always 40%
+    // Use values from the rules, with fallback to defaults
+    const cos = ruleValues.cos || 10; // Cost of Sales from rule or default 10%
+    const coc =
+      ruleValues.coc || (data.mediaType.toLowerCase() === "text" ? 12 : 50); // Cost of Content from rule or default
+    const yahooRevShare = ruleValues.yahoo_rev || 60; // Yahoo Revenue Share from rule or default 60%
+    const onefootballRevShare = ruleValues.onefootball_rev || 40; // OneFootball Revenue Share from rule or default 40%
 
     // Step 1: Apply COS - Revenue Post COS = Gross Revenue * (1 - COS%)
     const revenuePostCOS = data.grossRevenue * (1 - cos / 100);
@@ -430,7 +454,10 @@ export function RevenueCalculator({
   };
 
   const formatPercentage = (value: number) => {
-    return `${value}%`;
+    // If value is already in percentage format (0-100), use as is
+    // If value is in decimal format (0-1), convert to percentage
+    const percentage = value > 1 ? value : value * 100;
+    return `${percentage.toFixed(1)}%`;
   };
 
   // Download results as CSV
