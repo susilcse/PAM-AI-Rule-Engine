@@ -27,6 +27,7 @@ import {
 
 import { ContractSummaryPanel } from "@/components/contract-summary-panel";
 import { TokenRuleEditor } from "@/components/token-rule-editor";
+import { RevenueCalculator } from "@/components/revenue-calculator";
 
 interface Contract {
   id: string;
@@ -37,7 +38,7 @@ interface Contract {
   fileName: string;
 }
 
-type PageView = "home" | "contracts" | "rules";
+type PageView = "home" | "contracts" | "rules" | "revenue-calculator";
 
 export default function RuleEngineApp() {
   const [currentPage, setCurrentPage] = useState<PageView>("home");
@@ -57,6 +58,12 @@ export default function RuleEngineApp() {
   const [processingContractId, setProcessingContractId] = useState<
     string | null
   >(null);
+  const [finalizedRules, setFinalizedRules] = useState<any[]>([]);
+
+  const handleFinalizeRules = (rules: any[]) => {
+    setFinalizedRules(rules);
+    setCurrentPage("revenue-calculator");
+  };
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -513,7 +520,16 @@ export default function RuleEngineApp() {
         {currentPage === "rules" && selectedContract && (
           <TokenRuleEditor
             onBack={() => setCurrentPage("contracts")}
+            onFinalizeRules={handleFinalizeRules}
             contractInfo={selectedContract}
+          />
+        )}
+
+        {currentPage === "revenue-calculator" && selectedContract && (
+          <RevenueCalculator
+            rules={finalizedRules}
+            contractInfo={selectedContract}
+            onBack={() => setCurrentPage("rules")}
           />
         )}
       </div>

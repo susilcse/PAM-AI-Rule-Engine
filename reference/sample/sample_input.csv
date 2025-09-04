@@ -1,0 +1,7 @@
+input,input,input,process from previous column,input,input,output based on rule,output based on rule,output based on rule,output based on rule,output based on rule,output based on rule,output based on rule
+Period,Contract,Name,License Type,Impressions,Gross Revenue,COS %,Revenue Post COS,Cost of Content,Revenue Post COC/COS,RevShare %,RevShare,Revshare + COC
+JUL-25,2-0000274176,OneFootball - AC Milan (text),Text,"  10,991 ",  12.11 ,10%,  10.90 ,12%,  9.59 ,60%,  5.75 ,  7.06 
+JUL-25,2-0000274176,OneFootball - AC Milan (video),Video,"  5,411 ",  19.20 ,10%,  17.28 ,50%,  8.64 ,60%,  5.19 ,  13.83 
+JUL-25,2-0000274176,OneFootball - Absolute Chelsea (text),Text,  496 ,  0.53 ,10%,  0.48 ,12%,  0.42 ,60%,  0.25 ,  0.31 
+JUL-25,2-0000274176,OneFootball - AFC Ajax (video),Video,  391 ,  1.25 ,10%,  1.13 ,50%,  0.56 ,60%,  0.34 ,  0.90 
+JUL-25,2-0000274176,OneFootball - AS Monaco (text),Text,"  3,629 ",  3.86 ,10%,  3.48 ,12%,  3.06 ,60%,  1.84 ,  2.25 
