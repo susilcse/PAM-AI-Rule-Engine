@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,7 +10,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calculator, TrendingUp, DollarSign } from "lucide-react";
+import {
+  ArrowLeft,
+  Calculator,
+  TrendingUp,
+  DollarSign,
+  Upload,
+  X,
+  FileText,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -101,6 +109,10 @@ export function RevenueCalculator({
 }: RevenueCalculatorProps) {
   const [results, setResults] = useState<CalculationResult[]>([]);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [uploadedData, setUploadedData] = useState<RevenueData[]>([]);
+  const [hasUploadedFile, setHasUploadedFile] = useState(false);
+  const [uploadError, setUploadError] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Extract rule values from token arrays
   const extractRuleValues = (rule: TokenRule) => {
@@ -230,13 +242,176 @@ export function RevenueCalculator({
     };
   };
 
+  // CSV parsing function that handles commas in numbers
+  const parseCSV = (csvText: string): RevenueData[] => {
+    const lines = csvText.trim().split("\n");
+
+    // Skip the first line (stat,stat,,,stat,stat/rule,,stat,rule,,rule,,rule,,)
+    // Use the second line as headers
+    const headerLine = lines[1];
+
+    // Parse CSV line properly handling quoted fields and commas in numbers
+    const parseCSVLine = (line: string): string[] => {
+      const result: string[] = [];
+      let current = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          result.push(current.trim());
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim());
+      return result;
+    };
+
+    const headers = parseCSVLine(headerLine).map((h) => h.toLowerCase());
+
+    // Debug: Let's see what we're working with
+    console.log("Raw CSV first line:", lines[0]);
+    console.log("Raw CSV header line:", headerLine);
+    console.log("Headers after processing:", headers);
+
+    // Find column indices - more flexible matching
+    const contentTypeIndex = headers.findIndex(
+      (h) =>
+        h.includes("name") ||
+        h.includes("content") ||
+        h.includes("license") ||
+        h.includes("partner")
+    );
+    const mediaTypeIndex = headers.findIndex(
+      (h) => h.includes("license") || h.includes("media") || h.includes("type")
+    );
+    const revenueIndex = headers.findIndex(
+      (h) => h.includes("revenue") || h.includes("gross")
+    );
+
+    // Debug: Show what we found
+    console.log(
+      "Content Type Index:",
+      contentTypeIndex,
+      "Media Type Index:",
+      mediaTypeIndex,
+      "Revenue Index:",
+      revenueIndex
+    );
+
+    if (
+      contentTypeIndex === -1 ||
+      mediaTypeIndex === -1 ||
+      revenueIndex === -1
+    ) {
+      throw new Error(
+        "CSV must contain columns for content type, media type, and gross revenue"
+      );
+    }
+
+    const data: RevenueData[] = [];
+
+    for (let i = 2; i < lines.length; i++) {
+      const values = parseCSVLine(lines[i]);
+
+      if (
+        values.length >=
+        Math.max(contentTypeIndex, mediaTypeIndex, revenueIndex) + 1
+      ) {
+        // Remove commas from numbers (thousands separators) and parse
+        const grossRevenueStr = values[revenueIndex].replace(/,/g, "");
+        const grossRevenue = parseFloat(grossRevenueStr);
+
+        if (!isNaN(grossRevenue)) {
+          // Extract content type and media type from the name field
+          const nameField = values[contentTypeIndex] || "";
+          const licenseTypeField = values[mediaTypeIndex] || "";
+
+          // Parse content type and media type from name field like "OneFootball - Borussia Dortmund (text)"
+          let contentType = nameField;
+          let mediaType = licenseTypeField || "Text";
+
+          // If name field contains media type in parentheses, extract it
+          const mediaTypeMatch = nameField.match(/\(([^)]+)\)$/);
+          if (mediaTypeMatch) {
+            contentType = nameField.replace(/\s*\([^)]+\)$/, ""); // Remove (text) or (video) from end
+            mediaType = mediaTypeMatch[1]; // Extract text or video
+          }
+
+          data.push({
+            id: i.toString(),
+            contentType: contentType || "Unknown",
+            mediaType: mediaType || "Text",
+            grossRevenue: grossRevenue,
+          });
+        }
+      }
+    }
+
+    return data;
+  };
+
+  // Handle file upload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith(".csv")) {
+      setUploadError("Please upload a CSV file");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const csvText = e.target?.result as string;
+        const parsedData = parseCSV(csvText);
+
+        if (parsedData.length === 0) {
+          setUploadError("No valid data found in CSV file");
+          return;
+        }
+
+        setUploadedData(parsedData);
+        setHasUploadedFile(true);
+        setUploadError("");
+        setResults([]); // Clear previous results
+      } catch (error) {
+        setUploadError(
+          error instanceof Error ? error.message : "Error parsing CSV file"
+        );
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
+  // Clear uploaded file
+  const clearUploadedFile = () => {
+    setUploadedData([]);
+    setHasUploadedFile(false);
+    setUploadError("");
+    setResults([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleApplyRules = async () => {
     setIsCalculating(true);
 
     // Simulate processing time for demo effect
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    const calculatedResults = sampleData.map((data) => {
+    // Use uploaded data if available, otherwise fall back to sample data
+    const dataToProcess = hasUploadedFile ? uploadedData : sampleData;
+
+    const calculatedResults = dataToProcess.map((data) => {
       const ruleValues = findMatchingRule(data.contentType, data.mediaType);
       return calculateRevenue(data, ruleValues);
     });
@@ -302,15 +477,89 @@ export function RevenueCalculator({
         </CardContent>
       </Card>
 
+      {/* CSV Upload Section */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5" />
+            Upload Revenue Data
+          </CardTitle>
+          <CardDescription>
+            Upload a CSV file with your revenue data to calculate distributions
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!hasUploadedFile ? (
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center">
+                <Upload className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+                <p className="text-slate-600 dark:text-slate-400 mb-4">
+                  Upload a CSV file with columns for content type, media type,
+                  and gross revenue
+                </p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  variant="outline"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Choose CSV File
+                </Button>
+              </div>
+              {uploadError && (
+                <div className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                  {uploadError}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-green-800 dark:text-green-200">
+                      CSV file uploaded successfully
+                    </p>
+                    <p className="text-sm text-green-600 dark:text-green-400">
+                      {uploadedData.length} records loaded
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearUploadedFile}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Remove
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Sample Data Table */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <DollarSign className="h-5 w-5" />
-            Sample Revenue Data
+            {hasUploadedFile ? "Uploaded Revenue Data" : "Sample Revenue Data"}
           </CardTitle>
           <CardDescription>
-            Sample data from July 2025 - Ready for rule application
+            {hasUploadedFile
+              ? `${uploadedData.length} records from uploaded CSV - Ready for rule application`
+              : "Sample data from July 2025 - Ready for rule application"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -323,7 +572,7 @@ export function RevenueCalculator({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sampleData.map((data) => (
+              {(hasUploadedFile ? uploadedData : sampleData).map((data) => (
                 <TableRow key={data.id}>
                   <TableCell className="font-medium">
                     {data.contentType}
