@@ -449,7 +449,7 @@ export function RevenueCalculator({
       "Revenue Post COC",
       "Yahoo %",
       "OneFootball %",
-      "Yahoo Final",
+      "RevShare",
       "OneFootball Payout",
       "RevShare + COC",
     ];
@@ -723,7 +723,7 @@ export function RevenueCalculator({
                     </TableHead>
                     <TableHead className="text-right">Yahoo %</TableHead>
                     <TableHead className="text-right">OneFootball %</TableHead>
-                    <TableHead className="text-right">Yahoo Final</TableHead>
+                    <TableHead className="text-right">RevShare</TableHead>
                     <TableHead className="text-right">
                       OneFootball Payout
                     </TableHead>
